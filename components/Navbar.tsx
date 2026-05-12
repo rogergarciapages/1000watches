@@ -19,8 +19,9 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center gap-8">
           {[
             { label: 'Archive', href: '#archive' },
-            { label: 'Nominate', href: '#nominate' },
-            { label: 'Phase 2', href: '#phase-2' },
+            { label: 'Brands', href: '/timepieces' },
+            { label: 'Vote', href: '/submissions' },
+            { label: 'Submit', href: '#nominate' },
           ].map(({ label, href }) => (
             <a
               key={label}

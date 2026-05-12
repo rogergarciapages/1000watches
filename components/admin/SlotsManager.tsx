@@ -8,6 +8,10 @@ interface Slot {
   brand: string | null
   model: string | null
   year: number | null
+  material: string | null
+  movement_type: string | null
+  reference: string | null
+  image_url: string | null
   status: 'empty' | 'filled'
 }
 
@@ -17,45 +21,92 @@ interface Props {
 
 function AssignModal({
   slotId,
+  existingData,
   onClose,
   onAssign,
 }: {
   slotId: number
+  existingData?: Slot
   onClose: () => void
-  onAssign: (brand: string, model: string, year: number) => void
+  onAssign: (brand: string, model: string, year: number, material?: string, movement_type?: string, reference?: string) => void
 }) {
-  const [form, setForm] = useState({ brand: '', model: '', year: '' })
+  const [form, setForm] = useState({
+    brand: existingData?.brand || '',
+    model: existingData?.model || '',
+    year: existingData?.year?.toString() || '',
+    material: existingData?.material || '',
+    movement_type: existingData?.movement_type || '',
+    reference: existingData?.reference || '',
+  })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onAssign(form.brand, form.model, parseInt(form.year))
+    onAssign(
+      form.brand,
+      form.model,
+      parseInt(form.year),
+      form.material || undefined,
+      form.movement_type || undefined,
+      form.reference || undefined
+    )
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-sm p-7 rounded-2xl border border-white/10 bg-[#0d0d0d] shadow-2xl">
+      <div className="w-full max-w-md p-7 rounded-2xl border border-white/10 bg-[#0d0d0d] shadow-2xl">
         <h3 className="text-sm font-medium text-white mb-1">Assign to Slot #{String(slotId).padStart(4, '0')}</h3>
         <p className="text-xs text-white/30 mb-6">Manually fill this slot with a specific watch.</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {[
-            { label: 'Brand', field: 'brand', placeholder: 'e.g. Rolex' },
-            { label: 'Model', field: 'model', placeholder: 'e.g. Daytona 6239' },
-            { label: 'Year', field: 'year', placeholder: 'e.g. 1963' },
-          ].map(({ label, field, placeholder }) => (
-            <div key={field}>
-              <label className="block text-[10px] uppercase tracking-widest text-white/30 mb-1.5">{label}</label>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { label: 'Brand', field: 'brand', placeholder: 'e.g. Rolex' },
+              { label: 'Model', field: 'model', placeholder: 'e.g. Daytona 6239' },
+              { label: 'Year', field: 'year', placeholder: 'e.g. 1963', type: 'number' },
+              { label: 'Reference', field: 'reference', placeholder: 'e.g. 6239' },
+            ].map(({ label, field, placeholder, type }) => (
+              <div key={field}>
+                <label className="block text-[10px] uppercase tracking-widest text-white/30 mb-1.5">{label}</label>
+                <input
+                  required={field !== 'reference'}
+                  type={type || 'text'}
+                  placeholder={placeholder}
+                  value={form[field as keyof typeof form]}
+                  onChange={e => setForm(prev => ({ ...prev, [field]: e.target.value }))}
+                  className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white
+                    placeholder:text-white/20 focus:outline-none focus:border-amber-500/50 transition-all"
+                />
+              </div>
+            ))}
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] uppercase tracking-widest text-white/30 mb-1.5">Material</label>
               <input
-                required
-                type={field === 'year' ? 'number' : 'text'}
-                placeholder={placeholder}
-                value={form[field as keyof typeof form]}
-                onChange={e => setForm(prev => ({ ...prev, [field]: e.target.value }))}
+                type="text"
+                placeholder="e.g. Steel, Gold"
+                value={form.material}
+                onChange={e => setForm(prev => ({ ...prev, material: e.target.value }))}
                 className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white
                   placeholder:text-white/20 focus:outline-none focus:border-amber-500/50 transition-all"
               />
             </div>
-          ))}
+            <div>
+              <label className="block text-[10px] uppercase tracking-widest text-white/30 mb-1.5">Movement</label>
+              <select
+                value={form.movement_type}
+                onChange={e => setForm(prev => ({ ...prev, movement_type: e.target.value }))}
+                className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white
+                  focus:outline-none focus:border-amber-500/50 transition-all"
+              >
+                <option value="" className="bg-[#1a1a1a]">Select</option>
+                <option value="automatic" className="bg-[#1a1a1a]">Automatic</option>
+                <option value="quartz" className="bg-[#1a1a1a]">Quartz</option>
+                <option value="manual" className="bg-[#1a1a1a]">Manual</option>
+              </select>
+            </div>
+          </div>
 
           <div className="flex gap-3 pt-2">
             <button
@@ -82,6 +133,7 @@ export default function SlotsManager({ filledSlots }: Props) {
   const [pending, startTransition] = useTransition()
   const [actionId, setActionId] = useState<number | null>(null)
   const [assignSlotId, setAssignSlotId] = useState<number | null>(null)
+  const [editingSlot, setEditingSlot] = useState<Slot | null>(null)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
 
   const showToast = (msg: string, type: 'success' | 'error') => {
@@ -100,11 +152,20 @@ export default function SlotsManager({ filledSlots }: Props) {
     })
   }
 
-  const handleAssign = (slotId: number, brand: string, model: string, year: number) => {
+  const handleAssign = (
+    slotId: number, 
+    brand: string, 
+    model: string, 
+    year: number,
+    material?: string,
+    movement_type?: string,
+    reference?: string
+  ) => {
     setAssignSlotId(null)
+    setEditingSlot(null)
     setActionId(slotId)
     startTransition(async () => {
-      const result = await assignToSlot(slotId, brand, model, year)
+      const result = await assignToSlot(slotId, brand, model, year, material, movement_type, reference)
       if (result.ok) showToast(`Slot #${slotId} assigned to ${brand} ${model}`, 'success')
       else showToast(result.error || 'Failed', 'error')
       setActionId(null)
@@ -133,8 +194,10 @@ export default function SlotsManager({ filledSlots }: Props) {
       {assignSlotId !== null && (
         <AssignModal
           slotId={assignSlotId}
-          onClose={() => setAssignSlotId(null)}
-          onAssign={(brand, model, year) => handleAssign(assignSlotId, brand, model, year)}
+          existingData={editingSlot || undefined}
+          onClose={() => { setAssignSlotId(null); setEditingSlot(null) }}
+          onAssign={(brand, model, year, material, movement_type, reference) => 
+            handleAssign(assignSlotId, brand, model, year, material, movement_type, reference)}
         />
       )}
 
@@ -165,7 +228,7 @@ export default function SlotsManager({ filledSlots }: Props) {
                   <td className="py-3.5 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <button
-                        onClick={() => setAssignSlotId(slot.id)}
+                        onClick={() => { setAssignSlotId(slot.id); setEditingSlot(slot) }}
                         disabled={pending}
                         className="px-3 py-1.5 rounded-lg border border-white/[0.07] text-white/40
                           text-[10px] uppercase tracking-wider font-bold hover:border-white/20 hover:text-white/70

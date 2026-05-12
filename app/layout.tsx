@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="antialiased">
-      <body className="bg-[#050505] selection:bg-amber-500/30">
+      <body className="bg-[#050505] selection:bg-amber-500/30" suppressHydrationWarning>
         {children}
       </body>
     </html>

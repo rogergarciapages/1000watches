@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { fillNextSlot, dismissSubmission } from '@/app/admin/actions'
 
 interface Submission {
@@ -8,6 +9,9 @@ interface Submission {
   brand: string
   model: string
   year: number
+  material: string | null
+  movement_type: string | null
+  image_url: string | null
   created_at: string
 }
 
@@ -19,6 +23,7 @@ export default function SubmissionsQueue({ submissions }: Props) {
   const [pending, startTransition] = useTransition()
   const [actionId, setActionId] = useState<string | null>(null)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
+  const router = useRouter()
 
   const showToast = (msg: string, type: 'success' | 'error') => {
     setToast({ msg, type })
@@ -28,9 +33,20 @@ export default function SubmissionsQueue({ submissions }: Props) {
   const handleFill = (s: Submission) => {
     setActionId(s.id)
     startTransition(async () => {
-      const result = await fillNextSlot(s.id, s.brand, s.model, s.year)
-      if (result.ok) showToast(`Slot #${result.slotId} filled with ${s.brand} ${s.model}`, 'success')
-      else showToast(result.error || 'Failed', 'error')
+      const result = await fillNextSlot(s.id, {
+        brand: s.brand,
+        model: s.model,
+        year: s.year,
+        material: s.material || undefined,
+        movement_type: s.movement_type || undefined,
+        image_url: s.image_url || undefined,
+      })
+      if (result.ok) {
+        showToast(`Slot #${result.slotId} filled with ${s.brand} ${s.model}`, 'success')
+        router.refresh()
+      } else {
+        showToast(result.error || 'Failed', 'error')
+      }
       setActionId(null)
     })
   }
@@ -72,6 +88,7 @@ export default function SubmissionsQueue({ submissions }: Props) {
               <th className="text-left text-[10px] uppercase tracking-widest text-white/30 font-normal pb-3 pr-6">Brand</th>
               <th className="text-left text-[10px] uppercase tracking-widest text-white/30 font-normal pb-3 pr-6">Model</th>
               <th className="text-left text-[10px] uppercase tracking-widest text-white/30 font-normal pb-3 pr-6">Year</th>
+              <th className="text-left text-[10px] uppercase tracking-widest text-white/30 font-normal pb-3 pr-6">Details</th>
               <th className="text-left text-[10px] uppercase tracking-widest text-white/30 font-normal pb-3 pr-6">Submitted</th>
               <th className="text-right text-[10px] uppercase tracking-widest text-white/30 font-normal pb-3">Actions</th>
             </tr>
@@ -84,6 +101,19 @@ export default function SubmissionsQueue({ submissions }: Props) {
                   <td className="py-3.5 pr-6 font-medium text-white/80">{s.brand}</td>
                   <td className="py-3.5 pr-6 text-white/60">{s.model}</td>
                   <td className="py-3.5 pr-6 text-white/40 font-mono text-xs">{s.year}</td>
+                  <td className="py-3.5 pr-6">
+                    <div className="flex gap-2 flex-wrap">
+                      {s.material && (
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-white/5 text-white/50">{s.material}</span>
+                      )}
+                      {s.movement_type && (
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-500/70">{s.movement_type}</span>
+                      )}
+                      {s.image_url && (
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-green-500/10 text-green-500/70">📷</span>
+                      )}
+                    </div>
+                  </td>
                   <td className="py-3.5 pr-6 text-white/25 text-xs">
                     {new Date(s.created_at).toLocaleDateString('en-GB', {
                       day: '2-digit', month: 'short', year: 'numeric'

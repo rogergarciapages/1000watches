@@ -5,6 +5,8 @@ import SubmissionsQueue from '@/components/admin/SubmissionsQueue'
 import SlotsManager from '@/components/admin/SlotsManager'
 import AdminLogout from '@/components/admin/AdminLogout'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Admin Panel — 1,000 Watches',
   robots: 'noindex, nofollow',

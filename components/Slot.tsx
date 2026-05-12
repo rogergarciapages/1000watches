@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
-
-const supabase = createClient();
+import Link from 'next/link';
 
 interface SlotTooltipProps {
   brand: string;
@@ -25,6 +23,12 @@ function SlotTooltip({ brand, model, year }: SlotTooltipProps) {
   );
 }
 
+function createSlug(brand: string, model: string): string {
+  const slugBrand = brand.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const slugModel = model.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return `${slugBrand}/${slugModel}`;
+}
+
 interface SlotProps {
   id: number;
   brand?: string | null;
@@ -37,17 +41,12 @@ export default function Slot({ id, brand, model, year, status }: SlotProps) {
   const [hovered, setHovered] = useState(false);
   const isEmpty = status === 'empty';
 
-  return (
-    <div
-      className={`relative aspect-square flex flex-col items-center justify-center transition-all duration-300 group cursor-default
-        ${isEmpty
-          ? 'border border-white/[0.06] bg-white/[0.015] hover:bg-white/[0.04] hover:border-white/20'
-          : 'border border-amber-500/25 bg-amber-500/[0.04] hover:bg-amber-500/[0.08] hover:border-amber-500/50'
-        }
-      `}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+  const watchLink = !isEmpty && brand && model 
+    ? `/timepieces/${createSlug(brand, model)}` 
+    : null;
+
+  const content = (
+    <>
       {/* Slot Number */}
       <span className="absolute top-[2px] left-[3px] text-[7px] font-mono opacity-20 group-hover:opacity-50 transition-opacity leading-none">
         {String(id).padStart(4, '0')}
@@ -78,6 +77,35 @@ export default function Slot({ id, brand, model, year, status }: SlotProps) {
           <div className="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-amber-500/30 group-hover:border-amber-500/60 transition-colors" />
         </>
       )}
-    </div>
+    </>
+  );
+
+  if (isEmpty || !watchLink) {
+    return (
+      <div
+        className={`relative aspect-square flex flex-col items-center justify-center transition-all duration-300 group cursor-default
+          ${isEmpty
+            ? 'border border-white/[0.06] bg-white/[0.015] hover:bg-white/[0.04] hover:border-white/20'
+            : 'border border-amber-500/25 bg-amber-500/[0.04] hover:bg-amber-500/[0.08] hover:border-amber-500/50'
+          }
+        `}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={watchLink}
+      className="relative aspect-square flex flex-col items-center justify-center transition-all duration-300 group cursor-pointer
+        border border-amber-500/25 bg-amber-500/[0.04] hover:bg-amber-500/[0.08] hover:border-amber-500/50"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {content}
+    </Link>
   );
 }
