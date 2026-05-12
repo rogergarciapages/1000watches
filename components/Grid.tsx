@@ -10,6 +10,7 @@ export default function Grid() {
   const [filledSlots, setFilledSlots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filledCount, setFilledCount] = useState(0);
+  const [featuredPhotos, setFeaturedPhotos] = useState<Record<string, string>>({});
 
   const fetchSlots = useCallback(async () => {
     const { data, error } = await supabase
@@ -21,14 +22,28 @@ export default function Grid() {
     if (!error && data) {
       setFilledSlots(data);
       setFilledCount(data.length);
+
+      const uuids = data.map(s => s.uuid).filter(Boolean);
+      if (uuids.length) {
+        const { data: photos } = await supabase
+          .from('watch_photos')
+          .select('watch_id, image_url')
+          .in('watch_id', uuids)
+          .eq('is_default', true);
+
+        if (photos) {
+          const map: Record<string, string> = {}
+          photos.forEach(p => { map[p.watch_id] = p.image_url })
+          setFeaturedPhotos(map)
+        }
+      }
     }
-    setLoading(false);
+    setLoading(false)
   }, []);
 
   useEffect(() => {
     fetchSlots();
 
-    // Subscribe to realtime changes
     const channel = supabase
       .channel('slots-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'slots' }, () => {
@@ -41,11 +56,14 @@ export default function Grid() {
     };
   }, [fetchSlots]);
 
-  // Merge: start with 1000 empty, overlay filled slots
   const allSlots = Array.from({ length: 1000 }, (_, i) => {
     const slotId = i + 1;
     const filled = filledSlots.find(s => s.id === slotId);
-    return filled ?? { id: slotId, status: 'empty', brand: null, model: null, year: null };
+    const slot = filled ?? { id: slotId, status: 'empty', brand: null, model: null, year: null };
+    if (filled && filled.uuid) {
+      slot.featuredImage = featuredPhotos[filled.uuid] ?? null;
+    }
+    return slot;
   });
 
   return (
@@ -78,6 +96,7 @@ export default function Grid() {
             model={slot.model}
             year={slot.year}
             status={slot.status}
+            featuredImage={slot.featuredImage ?? undefined}
           />
         ))}
       </div>

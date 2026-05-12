@@ -25,7 +25,6 @@ export default async function AdminPage() {
 
   const supabase = await createAdminClient()
 
-  // Fetch all data in parallel
   const [
     { data: submissions },
     { data: filledSlots },
@@ -38,11 +37,39 @@ export default async function AdminPage() {
     supabase.from('submissions').select('*', { count: 'exact', head: true }),
   ])
 
+  // Fetch featured photos for filled slots
+  let slotPhotos: Record<string, { image_url: string; count: number }> = {}
+  if (filledSlots) {
+    const uuids = filledSlots.map(s => s.uuid).filter(Boolean)
+    if (uuids.length) {
+      const { data: photos } = await supabase
+        .from('watch_photos')
+        .select('watch_id, image_url')
+        .in('watch_id', uuids)
+        .eq('is_default', true)
+
+      const { data: counts } = await supabase
+        .from('watch_photos')
+        .select('watch_id')
+        .in('watch_id', uuids)
+
+      const countMap: Record<string, number> = {}
+      counts?.forEach(p => {
+        countMap[p.watch_id] = (countMap[p.watch_id] || 0) + 1
+      })
+
+      if (photos) {
+        photos.forEach(p => {
+          slotPhotos[p.watch_id] = { image_url: p.image_url, count: countMap[p.watch_id] || 0 }
+        })
+      }
+    }
+  }
+
   const slotsRemaining = 1000 - (totalFilled ?? 0)
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
-      {/* Top bar */}
       <header className="border-b border-white/[0.06] bg-[#080808]">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -68,12 +95,12 @@ export default async function AdminPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-10 space-y-10">
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {[
             { label: 'Slots Filled', value: totalFilled ?? 0, accent: true },
             { label: 'Slots Remaining', value: slotsRemaining },
             { label: 'Total Submissions', value: totalSubmissions ?? 0 },
+            { label: 'Photos Uploaded', value: Object.keys(slotPhotos).length },
             {
               label: 'Progress',
               value: `${(((totalFilled ?? 0) / 1000) * 100).toFixed(1)}%`,
@@ -91,7 +118,6 @@ export default async function AdminPage() {
           ))}
         </div>
 
-        {/* Progress bar */}
         <div className="space-y-2">
           <div className="flex justify-between text-[10px] uppercase tracking-widest text-white/25">
             <span>Archive Progress</span>
@@ -105,7 +131,6 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        {/* Submissions Queue */}
         <section>
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -120,7 +145,6 @@ export default async function AdminPage() {
           </div>
         </section>
 
-        {/* Filled Slots Manager */}
         <section>
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -131,7 +155,7 @@ export default async function AdminPage() {
             </div>
           </div>
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-6">
-            <SlotsManager filledSlots={filledSlots ?? []} />
+            <SlotsManager filledSlots={filledSlots ?? []} slotPhotos={slotPhotos} />
           </div>
         </section>
       </main>

@@ -3,7 +3,77 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import Navbar from '@/components/Navbar'
+import VoteButton from '@/components/VoteButton'
+import PhotoGallery from '@/components/PhotoGallery'
+import PhotoUploader from '@/components/PhotoUploader'
+import { specFields } from '@/lib/schemas'
+
+function SpecRow({ label, value, suffix, prefix, isBoolean }: { 
+  label: string; 
+  value: string | number | boolean | null | undefined;
+  suffix?: string;
+  prefix?: string;
+  isBoolean?: boolean;
+}) {
+  let displayValue: string | number | boolean | null | undefined = value
+  
+  if (isBoolean) {
+    displayValue = value === true ? 'Yes' : value === false ? 'No' : null
+  } else if (suffix && typeof value === 'number') {
+    displayValue = `${value}${suffix}`
+  } else if (prefix && typeof value === 'number') {
+    displayValue = `${prefix}${value.toLocaleString()}`
+  }
+  
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-widest text-white/25 mb-1">{label}</p>
+      <p className={displayValue ? 'text-white/80' : 'text-white/15'}>{displayValue || '—'}</p>
+    </div>
+  )
+}
+
+function SpecSection({ 
+  title, 
+  category, 
+  specs 
+}: { 
+  title: string; 
+  category: string; 
+  specs: any 
+}) {
+  const fields = specFields[category]
+  const hasFields = fields.some((field: { key: string }) => {
+    const value = specs[field.key]
+    return value !== null && value !== undefined && value !== ''
+  })
+  
+  if (!hasFields) return null
+  
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-widest text-amber-500/60 mb-3 border-b border-white/5 pb-2">{title}</p>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-4">
+        {fields.map((field: { key: string; label: string; suffix?: string; prefix?: string; isBoolean?: boolean }) => {
+          const value = specs[field.key]
+          if (value === null || value === undefined || value === '') return null
+          return (
+            <SpecRow 
+              key={field.key} 
+              label={field.label} 
+              value={value}
+              suffix={field.suffix}
+              prefix={field.prefix}
+              isBoolean={field.isBoolean}
+            />
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 export default function WatchPage() {
   const params = useParams()
@@ -11,10 +81,10 @@ export default function WatchPage() {
   const modelSlug = params.model as string
   
   const [watch, setWatch] = useState<any>(null)
+  const [specs, setSpecs] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [voting, setVoting] = useState(false)
-  const [hasVoted, setHasVoted] = useState(false)
-  const [userVoteId, setUserVoteId] = useState<string | null>(null)
+  const [user, setUser] = useState<any>(null)
+  const [photoCount, setPhotoCount] = useState(0)
   
   const supabase = createClient()
 
@@ -22,20 +92,15 @@ export default function WatchPage() {
   const searchModel = modelSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 
   useEffect(() => {
-    fetchWatch()
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      fetchWatch()
+    }
+    init()
   }, [])
 
   const fetchWatch = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    const anonId = typeof window !== 'undefined' ? localStorage.getItem('anon_id') : null
-    const userId = user?.id || anonId
-    
-    // If no anon id, create one
-    if (!userId && typeof window !== 'undefined') {
-      const newAnonId = `anon-${Date.now()}`
-      localStorage.setItem('anon_id', newAnonId)
-    }
-    
     const { data } = await supabase
       .from('slots')
       .select('*')
@@ -44,102 +109,31 @@ export default function WatchPage() {
       .eq('status', 'filled')
       .single()
     
-    // Get vote count from votes table
     if (data) {
+      const submissionId = data.uuid || data.id
+      
       const { count } = await supabase
         .from('votes')
         .select('*', { count: 'exact', head: true })
-        .eq('submission_id', data.id)
+        .eq('submission_id', submissionId)
       
       data.votes = count || 0
+
+      // Fetch watch specs
+      const { data: specsData } = await supabase
+        .from('watch_specs')
+        .select('*')
+        .eq('watch_id', data.uuid)
+        .maybeSingle()
+      
+      setSpecs(specsData)
     }
     
     setWatch(data)
-    
-    // Check if user has voted
-    if (data && userId) {
-      const { data: voteData } = await supabase
-        .from('votes')
-        .select('id')
-        .eq('submission_id', data.id)
-        .eq('user_id', userId)
-        .maybeSingle()
-      
-      if (voteData) {
-        setHasVoted(true)
-        setUserVoteId(voteData.id)
-      }
-    }
-    
     setLoading(false)
   }
 
-  const handleVote = async () => {
-    if (voting) return
-    
-    setVoting(true)
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      const anonId = typeof window !== 'undefined' ? localStorage.getItem('anon_id') : null
-      
-      // Create anon ID if needed
-      let userId = user?.id || anonId
-      if (!userId && typeof window !== 'undefined') {
-        userId = `anon-${Date.now()}`
-        localStorage.setItem('anon_id', userId)
-      }
-      
-      if (hasVoted && userVoteId) {
-        // Remove vote from votes table if it exists
-        try {
-          await supabase.from('votes').delete().eq('id', userVoteId)
-        } catch (e) {}
-        
-        // Decrement slots votes
-        await supabase
-          .from('slots')
-          .update({ votes: Math.max(0, (watch.votes || 0) - 1) })
-          .eq('id', watch.id)
-        
-        setHasVoted(false)
-        setUserVoteId(null)
-      } else if (userId) {
-        // Insert into votes table
-        try {
-          await supabase.from('votes').insert({
-            submission_id: watch.id,
-            user_id: userId
-          })
-        } catch (e) {}
-        
-        // Increment slots votes
-        await supabase
-          .from('slots')
-          .update({ votes: (watch.votes || 0) + 1 })
-          .eq('id', watch.id)
-        
-        // Get the vote ID
-        const { data: voteData } = await supabase
-          .from('votes')
-          .select('id')
-          .eq('submission_id', watch.id)
-          .eq('user_id', userId)
-          .maybeSingle()
-        
-        if (voteData) {
-          setUserVoteId(voteData.id)
-        }
-        setHasVoted(true)
-      }
-      
-      // Refresh to get new count
-      fetchWatch()
-    } catch (err) {
-      console.error('Vote error:', err)
-    } finally {
-      setVoting(false)
-    }
-  }
+  
 
   if (loading) {
     return (
@@ -177,26 +171,16 @@ export default function WatchPage() {
 
           {/* Hero */}
           <div className="grid md:grid-cols-2 gap-12 items-start">
-            {/* Image */}
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-white/[0.05] to-transparent border border-white/10">
-              {watch.image_url ? (
-                <img 
-                  src={watch.image_url} 
-                  alt={`${watch.brand} ${watch.model}`}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="w-32 h-32 rounded-full border border-white/10 flex items-center justify-center">
-                    <span className="text-4xl font-display text-white/20">{watch.id}</span>
-                  </div>
+            {/* Photo Gallery */}
+            <div className="space-y-4">
+              <PhotoGallery watchId={watch.uuid} userId={user?.id} onPhotoCountChange={setPhotoCount} />
+              
+              {user && (
+                <div className="pt-4 border-t border-white/10">
+                  <p className="text-[10px] uppercase tracking-widest text-amber-500 mb-3">Add Your Photo</p>
+                  <PhotoUploader watchId={watch.uuid} onUploadComplete={() => {}} />
                 </div>
               )}
-              
-              {/* Slot number badge */}
-              <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 text-[10px] uppercase tracking-widest text-white/60">
-                Slot #{watch.id}
-              </div>
             </div>
 
             {/* Details */}
@@ -213,32 +197,19 @@ export default function WatchPage() {
 
               {/* Vote Button & Count */}
               <div className="flex items-center gap-6">
-                <button
-                  onClick={handleVote}
-                  disabled={voting}
-                  className={`flex items-center gap-3 px-6 py-3 rounded-xl border transition-all
-                    ${hasVoted 
-                      ? 'bg-amber-500/20 border-amber-500/40 text-amber-400 hover:bg-red-500/20 hover:border-red-500/40' 
-                      : 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/50'
-                    } disabled:opacity-50`}
-                >
-                  <svg 
-                    className={`w-5 h-5 ${hasVoted ? 'fill-amber-400' : 'fill-none stroke-amber-400'}`} 
-                    viewBox="0 0 24 24" 
-                    strokeWidth={2}
+                <VoteButton
+                  submissionId={watch.uuid}
+                  initialVotes={watch.votes || 0}
+                  size="lg"
+                />
+                {user && (
+                  <Link
+                    href={`/timepieces/${brandSlug}/${modelSlug}/edit`}
+                    className="px-4 py-2 rounded-xl border border-white/10 text-white/60 hover:text-amber-400 hover:border-amber-500/30 text-sm"
                   >
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                  </svg>
-                  <span className="text-xs font-bold uppercase tracking-wider">
-                    {hasVoted ? 'Voted' : 'Vote'}
-                  </span>
-                </button>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-light text-amber-400">{watch.votes || 0}</span>
-                  <span className="text-[10px] uppercase tracking-widest text-white/30">
-                    {watch.votes === 1 ? 'like' : 'likes'}
-                  </span>
-                </div>
+                    Edit Specs
+                  </Link>
+                )}
               </div>
 
               <div className="h-px bg-white/10" />
@@ -276,6 +247,63 @@ export default function WatchPage() {
                 <p className="text-sm text-white/40 leading-relaxed">
                   Part of the 1,000 Watches digital archive — a curated collection of the most iconic timepieces in horological history.
                 </p>
+              </div>
+
+              {/* Detailed Specifications */}
+              <div className="pt-8">
+                <div className="h-px bg-white/10 mb-8" />
+                
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-medium text-amber-500">Specifications</h3>
+                  {user && (
+                    <Link
+                      href={`/timepieces/${brandSlug}/${modelSlug}/edit`}
+                      className="px-4 py-2 rounded-xl border border-amber-500/30 text-amber-400 text-sm hover:bg-amber-500/10"
+                    >
+                      {specs ? 'Edit Specifications' : 'Add Specifications'}
+                    </Link>
+                  )}
+                </div>
+
+                {specs ? (
+                  <div className="space-y-8">
+                    <SpecSection title="Core Identification" category="core" specs={specs} />
+                    <SpecSection title="Watch Type & Usage" category="type" specs={specs} />
+                    <SpecSection title="Case" category="case" specs={specs} />
+                    <SpecSection title="Dial & Hands" category="dial" specs={specs} />
+                    <SpecSection title="Movement" category="movement" specs={specs} />
+                    <SpecSection title="Strap & Bracelet" category="strap" specs={specs} />
+                    <SpecSection title="Market & Pricing" category="market" specs={specs} />
+                    
+                    {/* Additional/Extra fields - show any specs not in the main categories */}
+                    {(() => {
+                      const knownFields = new Set(
+                        [...specFields.core, ...specFields.type, ...specFields.case, ...specFields.dial, ...specFields.movement, ...specFields.strap, ...specFields.market].map(f => f.key)
+                      )
+                      const extraFields = Object.entries(specs).filter(([k, v]) => 
+                        !['id', 'watch_id', 'created_at', 'updated_at', 'created_by', 'updated_by'].includes(k) &&
+                        !knownFields.has(k) &&
+                        v !== null && v !== undefined && v !== ''
+                      )
+                      if (extraFields.length === 0) return null
+                      return (
+                        <div>
+                          <p className="text-[10px] uppercase tracking-widest text-amber-500/60 mb-3 border-b border-white/5 pb-2">Additional Information</p>
+                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-4">
+                            {extraFields.map(([key, value]) => (
+                              <SpecRow key={key} label={key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} value={value as string | number | boolean} />
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })()}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-white/30 mb-4">No specifications have been added yet.</p>
+                    <p className="text-white/20 text-sm">Be the first to contribute detailed specifications for this timepiece.</p>
+                  </div>
+                )}
               </div>
 
               {/* Navigation */}

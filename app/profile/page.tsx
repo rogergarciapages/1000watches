@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import Navbar from '@/components/Navbar'
 
 const BADGES = [
   { icon: '⭐', label: 'Pioneer Submitter', desc: 'One of the first 100', amber: true },
@@ -160,13 +161,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-[#050505] text-white selection:bg-amber-500/20">
-        <nav className="fixed top-0 w-full z-50 bg-[#050505]/80 backdrop-blur-md border-b border-white/[0.06]">
-          <div className="max-w-7xl mx-auto px-6 md:px-12 py-5 flex justify-between items-center">
-            <Link href="/" className="text-sm font-light tracking-[0.15em] text-white uppercase">
-              1,000 <span className="text-amber-500">Watches</span>
-            </Link>
-          </div>
-        </nav>
+        <Navbar />
         <main className="pt-36 pb-32 px-6 md:px-12 max-w-lg mx-auto text-center">
           <h1 className="text-4xl font-light tracking-tight mb-6">Welcome Back</h1>
           <p className="text-white/40 mb-10">Sign in to track your nominations, votes, and contributions to the archive.</p>
@@ -193,26 +188,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-amber-500/20">
-      <nav className="fixed top-0 w-full z-50 bg-[#050505]/80 backdrop-blur-md border-b border-white/[0.06]">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-5 flex justify-between items-center">
-          <Link href="/" className="text-sm font-light tracking-[0.15em] text-white uppercase">
-            1,000 <span className="text-amber-500">Watches</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-10">
-            {['Archive', 'Nominate', 'Phase 2'].map(l => (
-              <a key={l} href={`/#${l.toLowerCase().replace(' ', '-')}`}
-                className="text-[11px] uppercase tracking-widest text-white/40 hover:text-white transition-colors">
-                {l}
-              </a>
-            ))}
-          </div>
-          <div className="flex items-center gap-6">
-            <button onClick={handleSignOut} className="text-white/40 hover:text-white transition-colors text-xs uppercase tracking-widest">
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="pt-36 pb-32 px-6 md:px-12 max-w-7xl mx-auto">
         <header className="grid grid-cols-1 md:grid-cols-12 gap-10 items-end mb-24">

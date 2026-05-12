@@ -35,9 +35,10 @@ interface SlotProps {
   model?: string | null;
   year?: number | null;
   status: 'empty' | 'filled';
+  featuredImage?: string;
 }
 
-export default function Slot({ id, brand, model, year, status }: SlotProps) {
+export default function Slot({ id, brand, model, year, status, featuredImage }: SlotProps) {
   const [hovered, setHovered] = useState(false);
   const isEmpty = status === 'empty';
 
@@ -59,6 +60,19 @@ export default function Slot({ id, brand, model, year, status }: SlotProps) {
 
       {isEmpty ? (
         <div className="w-1 h-1 rounded-full bg-white/10 group-hover:bg-amber-500/30 transition-colors" />
+      ) : featuredImage ? (
+        <div className="relative w-full h-full flex items-center justify-center overflow-hidden rounded">
+          <img
+            src={featuredImage}
+            alt={`${brand} ${model}`}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <div className="absolute bottom-1 left-0 right-0 text-center">
+            <p className="text-[7px] font-bold text-white/80 truncate leading-tight">{brand}</p>
+          </div>
+        </div>
       ) : (
         <div className="text-center px-1 overflow-hidden w-full">
           <p className="text-[8px] font-bold text-amber-400 uppercase tracking-tighter truncate leading-tight">

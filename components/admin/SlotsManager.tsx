@@ -1,10 +1,12 @@
 'use client'
 
 import React, { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { clearSlot, assignToSlot } from '@/app/admin/actions'
 
 interface Slot {
   id: number
+  uuid: string | null
   brand: string | null
   model: string | null
   year: number | null
@@ -17,6 +19,7 @@ interface Slot {
 
 interface Props {
   filledSlots: Slot[]
+  slotPhotos?: Record<string, { image_url: string; count: number }>
 }
 
 function AssignModal({
@@ -28,7 +31,7 @@ function AssignModal({
   slotId: number
   existingData?: Slot
   onClose: () => void
-  onAssign: (brand: string, model: string, year: number, material?: string, movement_type?: string, reference?: string) => void
+  onAssign: (brand: string, model: string, year: number, material: string | null, movement_type: string | null, reference: string | null) => void
 }) {
   const [form, setForm] = useState({
     brand: existingData?.brand || '',
@@ -45,9 +48,9 @@ function AssignModal({
       form.brand,
       form.model,
       parseInt(form.year),
-      form.material || undefined,
-      form.movement_type || undefined,
-      form.reference || undefined
+      form.material || null,
+      form.movement_type || null,
+      form.reference || null
     )
   }
 
@@ -79,7 +82,7 @@ function AssignModal({
               </div>
             ))}
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[10px] uppercase tracking-widest text-white/30 mb-1.5">Material</label>
@@ -129,12 +132,13 @@ function AssignModal({
   )
 }
 
-export default function SlotsManager({ filledSlots }: Props) {
+export default function SlotsManager({ filledSlots, slotPhotos }: Props) {
   const [pending, startTransition] = useTransition()
   const [actionId, setActionId] = useState<number | null>(null)
   const [assignSlotId, setAssignSlotId] = useState<number | null>(null)
   const [editingSlot, setEditingSlot] = useState<Slot | null>(null)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
+  const router = useRouter()
 
   const showToast = (msg: string, type: 'success' | 'error') => {
     setToast({ msg, type })
@@ -146,28 +150,36 @@ export default function SlotsManager({ filledSlots }: Props) {
     setActionId(slotId)
     startTransition(async () => {
       const result = await clearSlot(slotId)
-      if (result.ok) showToast(`Slot #${slotId} cleared`, 'success')
-      else showToast(result.error || 'Failed', 'error')
+      if (result.ok) {
+        showToast(`Slot #${slotId} cleared`, 'success')
+        router.refresh()
+      } else {
+        showToast(result.error || 'Failed', 'error')
+      }
       setActionId(null)
     })
   }
 
   const handleAssign = (
-    slotId: number, 
-    brand: string, 
-    model: string, 
+    slotId: number,
+    brand: string,
+    model: string,
     year: number,
-    material?: string,
-    movement_type?: string,
-    reference?: string
+    material: string | null,
+    movement_type: string | null,
+    reference: string | null
   ) => {
     setAssignSlotId(null)
     setEditingSlot(null)
     setActionId(slotId)
     startTransition(async () => {
       const result = await assignToSlot(slotId, brand, model, year, material, movement_type, reference)
-      if (result.ok) showToast(`Slot #${slotId} assigned to ${brand} ${model}`, 'success')
-      else showToast(result.error || 'Failed', 'error')
+      if (result.ok) {
+        showToast(`Slot #${slotId} assigned to ${brand} ${model}`, 'success')
+        router.refresh()
+      } else {
+        showToast(result.error || 'Failed', 'error')
+      }
       setActionId(null)
     })
   }
@@ -196,8 +208,9 @@ export default function SlotsManager({ filledSlots }: Props) {
           slotId={assignSlotId}
           existingData={editingSlot || undefined}
           onClose={() => { setAssignSlotId(null); setEditingSlot(null) }}
-          onAssign={(brand, model, year, material, movement_type, reference) => 
-            handleAssign(assignSlotId, brand, model, year, material, movement_type, reference)}
+          onAssign={(brand, model, year, material, movement_type, reference) =>
+            handleAssign(assignSlotId, brand, model, year, material, movement_type, reference)
+          }
         />
       )}
 
@@ -217,10 +230,22 @@ export default function SlotsManager({ filledSlots }: Props) {
               const isActive = actionId === slot.id && pending
               return (
                 <tr key={slot.id} className={`transition-opacity ${isActive ? 'opacity-40' : ''}`}>
-                  <td className="py-3.5 pr-6">
-                    <span className="font-mono text-xs text-amber-500/70">
-                      #{String(slot.id).padStart(4, '0')}
-                    </span>
+                  <td className="py-3.5 pr-4">
+                    <div className="flex items-center gap-3">
+                      {slotPhotos?.[slot.uuid ?? '']?.image_url && (
+                        <img
+                          src={slotPhotos[slot.uuid!].image_url}
+                          alt={slot.brand ?? ''}
+                          className="w-10 h-10 rounded-lg object-cover border border-white/10"
+                        />
+                      )}
+                      <span className="font-mono text-xs text-amber-500/70">
+                        #{String(slot.id).padStart(4, '0')}
+                        {slotPhotos?.[slot.uuid ?? '']?.count ? (
+                          <span className="text-white/20 ml-1">({slotPhotos[slot.uuid!].count})</span>
+                        ) : null}
+                      </span>
+                    </div>
                   </td>
                   <td className="py-3.5 pr-6 font-medium text-white/80">{slot.brand}</td>
                   <td className="py-3.5 pr-6 text-white/60">{slot.model}</td>

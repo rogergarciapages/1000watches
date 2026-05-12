@@ -12,6 +12,7 @@ interface Submission {
   material: string | null
   movement_type: string | null
   image_url: string | null
+  votes: number
   created_at: string
 }
 
@@ -33,14 +34,15 @@ export default function SubmissionsQueue({ submissions }: Props) {
   const handleFill = (s: Submission) => {
     setActionId(s.id)
     startTransition(async () => {
-      const result = await fillNextSlot(s.id, {
-        brand: s.brand,
-        model: s.model,
-        year: s.year,
-        material: s.material || undefined,
-        movement_type: s.movement_type || undefined,
-        image_url: s.image_url || undefined,
-      })
+      const result = await fillNextSlot(
+        s.id,
+        s.brand,
+        s.model,
+        s.year,
+        s.material,
+        s.movement_type,
+        s.image_url
+      )
       if (result.ok) {
         showToast(`Slot #${result.slotId} filled with ${s.brand} ${s.model}`, 'success')
         router.refresh()
@@ -55,8 +57,12 @@ export default function SubmissionsQueue({ submissions }: Props) {
     setActionId(id)
     startTransition(async () => {
       const result = await dismissSubmission(id)
-      if (result.ok) showToast('Submission dismissed', 'success')
-      else showToast(result.error || 'Failed', 'error')
+      if (result.ok) {
+        showToast('Submission dismissed', 'success')
+        router.refresh()
+      } else {
+        showToast(result.error || 'Failed', 'error')
+      }
       setActionId(null)
     })
   }
@@ -71,7 +77,6 @@ export default function SubmissionsQueue({ submissions }: Props) {
 
   return (
     <div className="relative">
-      {/* Toast */}
       {toast && (
         <div className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-xl text-xs font-medium shadow-2xl border animate-fade-in
           ${toast.type === 'success'
@@ -110,17 +115,21 @@ export default function SubmissionsQueue({ submissions }: Props) {
                         <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-500/70">{s.movement_type}</span>
                       )}
                       {s.image_url && (
-                        <span className="px-2 py-0.5 rounded text-[10px] bg-green-500/10 text-green-500/70">📷</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-green-500/10 text-green-500/70">IMG</span>
+                      )}
+                      {s.votes > 0 && (
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500/10 text-amber-500/70">{s.votes} votes</span>
                       )}
                     </div>
                   </td>
                   <td className="py-3.5 pr-6 text-white/25 text-xs">
-                    {new Date(s.created_at).toLocaleDateString('en-GB', {
-                      day: '2-digit', month: 'short', year: 'numeric'
-                    })}
+                    {new Date(s.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </td>
                   <td className="py-3.5 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      {s.image_url && (
+                        <img src={s.image_url} alt={s.brand} className="w-8 h-8 rounded object-cover border border-white/10" />
+                      )}
                       <button
                         onClick={() => handleFill(s)}
                         disabled={pending}
@@ -128,7 +137,7 @@ export default function SubmissionsQueue({ submissions }: Props) {
                           text-[10px] uppercase tracking-wider font-bold hover:bg-amber-500/20 transition-all
                           disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        Fill Next Slot
+                        Fill Slot
                       </button>
                       <button
                         onClick={() => handleDismiss(s.id)}
