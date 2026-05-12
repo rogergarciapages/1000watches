@@ -85,6 +85,8 @@ export async function dismissSubmission(submissionId: string) {
     .delete()
     .eq('id', submissionId)
 
+  console.log('[dismissSubmission] error:', error)
+
   if (error) {
     return { ok: false, error: error.message }
   }

@@ -62,25 +62,35 @@ export default function SubmissionForm() {
   };
 
   const uploadImage = async (file: File): Promise<string | null> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-    const filePath = `submissions/${fileName}`;
+    try {
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+      const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`
+      const filePath = `submissions/${fileName}`
 
-    const { data, error } = await supabase.storage
-      .from('watch-images')
-      .upload(filePath, file);
+      const { data, error } = await supabase.storage
+        .from('watch-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
 
-    if (error) {
-      console.error('Upload error:', error);
-      return null;
+      if (error) {
+        console.error('Storage upload error:', error)
+        setErrorMsg('Failed to upload image. Please try again.')
+        return null
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('watch-images')
+        .getPublicUrl(filePath)
+
+      return urlData.publicUrl
+    } catch (err) {
+      console.error('Upload error:', err)
+      setErrorMsg('Failed to upload image. Please try again.')
+      return null
     }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('watch-images')
-      .getPublicUrl(filePath);
-
-    return publicUrl;
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

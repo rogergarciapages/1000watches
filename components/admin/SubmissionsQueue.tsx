@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import React, { useState, useTransition, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { fillNextSlot, dismissSubmission } from '@/app/admin/actions'
 
@@ -24,7 +24,12 @@ export default function SubmissionsQueue({ submissions }: Props) {
   const [pending, startTransition] = useTransition()
   const [actionId, setActionId] = useState<string | null>(null)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
+  const [localSubs, setLocalSubs] = useState(submissions)
   const router = useRouter()
+
+  useEffect(() => {
+    setLocalSubs(submissions)
+  }, [submissions])
 
   const showToast = (msg: string, type: 'success' | 'error') => {
     setToast({ msg, type })
@@ -32,7 +37,7 @@ export default function SubmissionsQueue({ submissions }: Props) {
   }
 
   const handleFill = (s: Submission) => {
-    setActionId(s.id)
+    setLocalSubs(prev => prev.filter(sub => sub.id !== s.id))
     startTransition(async () => {
       const result = await fillNextSlot(
         s.id,
@@ -43,31 +48,29 @@ export default function SubmissionsQueue({ submissions }: Props) {
         s.movement_type,
         s.image_url
       )
-      if (result.ok) {
-        showToast(`Slot #${result.slotId} filled with ${s.brand} ${s.model}`, 'success')
-        router.refresh()
-      } else {
+      if (!result.ok) {
+        setLocalSubs(submissions)
         showToast(result.error || 'Failed', 'error')
+      } else {
+        showToast(`Slot #${result.slotId} filled with ${s.brand} ${s.model}`, 'success')
       }
-      setActionId(null)
     })
   }
 
   const handleDismiss = (id: string) => {
-    setActionId(id)
+    setLocalSubs(prev => prev.filter(s => s.id !== id))
     startTransition(async () => {
       const result = await dismissSubmission(id)
-      if (result.ok) {
-        showToast('Submission dismissed', 'success')
-        router.refresh()
-      } else {
+      if (!result.ok) {
+        setLocalSubs(submissions)
         showToast(result.error || 'Failed', 'error')
+      } else {
+        showToast('Submission dismissed', 'success')
       }
-      setActionId(null)
     })
   }
 
-  if (submissions.length === 0) {
+  if (localSubs.length === 0) {
     return (
       <div className="text-center py-16 text-white/20 text-sm">
         No pending submissions.
@@ -99,7 +102,7 @@ export default function SubmissionsQueue({ submissions }: Props) {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.04]">
-            {submissions.map(s => {
+            {localSubs.map(s => {
               const isActive = actionId === s.id && pending
               return (
                 <tr key={s.id} className={`transition-opacity ${isActive ? 'opacity-40' : ''}`}>

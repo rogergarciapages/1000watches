@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import Navbar from '@/components/Navbar'
 
@@ -22,42 +21,165 @@ const SETTINGS_LINKS = [
 const TABS = ['Submissions', 'Photos', 'Votes'] as const
 type Tab = typeof TABS[number]
 
-function ActivityItem({ title, subtitle, date, tag }: { title: string; subtitle: string; date: string; tag: string }) {
+const supabase = createClient()
+
+function timeAgo(dateStr: string): string {
+  const now = new Date()
+  const date = new Date(dateStr)
+  const diff = Math.floor((now.getTime() - date.getTime()) / 1000)
+  if (diff < 60) return 'Just now'
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`
+  return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+function StatCard({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
+  return (
+    <div className={`p-8 flex flex-col gap-4 bg-white/[0.015] border-r border-white/[0.06] last:border-r-0`}>
+      <span className="text-[10px] uppercase tracking-[0.2em] text-white/30">{label}</span>
+      <span className={`text-5xl font-light ${accent ? 'text-amber-500' : 'text-white'}`}>{value}</span>
+    </div>
+  )
+}
+
+function SubmissionCard({ submission }: { submission: any }) {
   return (
     <div className="group cursor-pointer">
       <div className="flex gap-6 items-center p-5 border border-white/[0.06] bg-white/[0.015]
         transition-all duration-500 hover:bg-white/[0.04] hover:border-white/10">
-        <div className="w-28 aspect-square bg-white/[0.04] border border-white/[0.06] flex-shrink-0 flex items-center justify-center overflow-hidden">
-          <div className="w-8 h-8 rounded-full border border-amber-500/20 flex items-center justify-center">
-            <div className="w-2 h-2 rounded-full bg-amber-500/40 group-hover:bg-amber-500 transition-colors" />
-          </div>
+        <div className="w-28 aspect-square bg-white/[0.04] border border-white/[0.06] flex-shrink-0 overflow-hidden flex items-center justify-center">
+          {submission.image_url ? (
+            <img src={submission.image_url} alt={submission.brand} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-8 h-8 rounded-full border border-amber-500/20 flex items-center justify-center">
+              <div className="w-2 h-2 rounded-full bg-amber-500/40 group-hover:bg-amber-500 transition-colors" />
+            </div>
+          )}
         </div>
         <div className="flex-grow space-y-2 min-w-0">
           <div className="flex justify-between items-start gap-4">
-            <span className="text-[10px] uppercase tracking-widest text-amber-500/80 font-bold">{tag}</span>
-            <span className="text-[10px] uppercase tracking-widest text-white/25 whitespace-nowrap flex-shrink-0">{date}</span>
+            <span className="text-[10px] uppercase tracking-widest text-amber-500/80 font-bold">Submission</span>
+            <span className="text-[10px] uppercase tracking-widest text-white/25 whitespace-nowrap flex-shrink-0">{timeAgo(submission.created_at)}</span>
           </div>
           <h3 className="text-base font-medium text-white/90 group-hover:text-amber-500 transition-colors leading-snug truncate">
-            {title}
+            {submission.brand} {submission.model}
           </h3>
-          <p className="text-xs text-white/40 leading-relaxed line-clamp-2">{subtitle}</p>
+          <p className="text-xs text-white/40 leading-relaxed line-clamp-2">
+            {submission.year}{submission.material ? ` · ${submission.material}` : ''}{submission.movement_type ? ` · ${submission.movement_type}` : ''}
+          </p>
+          {submission.votes > 0 && (
+            <span className="inline-flex items-center gap-1 text-[10px] text-amber-500/60">
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+              </svg>
+              {submission.votes} votes
+            </span>
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-const MOCK_ACTIVITY: Record<string, { title: string; subtitle: string; date: string; tag: string }[]> = {
-  Submissions: [
-    { title: 'Patek Philippe Calatrava Ref. 5227G', subtitle: 'Added comprehensive technical specs and historical context.', date: '2 Days Ago', tag: 'New Submission' },
-    { title: 'Vacheron Constantin Patrimony', subtitle: 'Identified a rare variation of the 1950s movement calibre.', date: '1 Week Ago', tag: 'New Submission' },
-  ],
-  Photos: [
-    { title: 'Rolex Submariner 5513 Dial Study', subtitle: 'Close-up series of the gilt "SWISS MADE" dial variations.', date: '5 Days Ago', tag: 'Photo Upload' },
-  ],
-  Votes: [
-    { title: 'IWC Portugieser vs Jaeger-LeCoultre Reverso', subtitle: 'Cast deciding vote — IWC Portugieser won by 3%.', date: 'Yesterday', tag: 'Vote Cast' },
-  ],
+function PhotoCard({ photo }: { photo: any }) {
+  return (
+    <div className="group cursor-pointer">
+      <div className="flex gap-6 items-center p-5 border border-white/[0.06] bg-white/[0.015]
+        transition-all duration-500 hover:bg-white/[0.04] hover:border-white/10">
+        <div className="w-28 aspect-square bg-white/[0.04] border border-white/[0.06] flex-shrink-0 overflow-hidden flex items-center justify-center">
+          <img src={photo.image_url} alt="" className="w-full h-full object-cover" />
+        </div>
+        <div className="flex-grow space-y-2 min-w-0">
+          <div className="flex justify-between items-start gap-4">
+            <span className="text-[10px] uppercase tracking-widest text-amber-500/80 font-bold">Photo Upload</span>
+            <span className="text-[10px] uppercase tracking-widest text-white/25 whitespace-nowrap flex-shrink-0">{timeAgo(photo.created_at)}</span>
+          </div>
+          {photo.caption && (
+            <h3 className="text-base font-medium text-white/90 group-hover:text-amber-500 transition-colors leading-snug line-clamp-2">
+              {photo.caption}
+            </h3>
+          )}
+          {photo.uploader_username && (
+            <p className="text-xs text-white/40">@{photo.uploader_username}</p>
+          )}
+          <span className="inline-flex items-center gap-1 text-[10px] text-amber-500/60">
+            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg>
+            {photo.votes} votes
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function VoteCard({ vote }: { vote: any }) {
+  return (
+    <div className="group cursor-pointer">
+      <div className="flex gap-6 items-center p-5 border border-white/[0.06] bg-white/[0.015]
+        transition-all duration-500 hover:bg-white/[0.04] hover:border-white/10">
+        <div className="w-28 aspect-square bg-white/[0.04] border border-white/[0.06] flex-shrink-0 overflow-hidden flex items-center justify-center">
+          {vote.photo?.image_url ? (
+            <img src={vote.photo.image_url} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <svg className="w-8 h-8 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          )}
+        </div>
+        <div className="flex-grow space-y-2 min-w-0">
+          <div className="flex justify-between items-start gap-4">
+            <span className="text-[10px] uppercase tracking-widest text-amber-500/80 font-bold">Vote Cast</span>
+            <span className="text-[10px] uppercase tracking-widest text-white/25 whitespace-nowrap flex-shrink-0">{timeAgo(vote.created_at)}</span>
+          </div>
+          {vote.photo?.caption && (
+            <h3 className="text-base font-medium text-white/90 group-hover:text-amber-500 transition-colors leading-snug line-clamp-2">
+              {vote.photo.caption}
+            </h3>
+          )}
+          {vote.photo && (
+            <p className="text-xs text-white/40">
+              {vote.photo.uploader_username ? `@${vote.photo.uploader_username}'s photo` : 'Community photo'}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function EmptyState({ tab, name }: { tab: Tab; name: string }) {
+  const messages: Record<Tab, { title: string; desc: string }> = {
+    Submissions: {
+      title: `No nominations yet, ${name.split(' ')[0]}`,
+      desc: 'Your submitted watches will appear here after approval.',
+    },
+    Photos: {
+      title: 'No photos uploaded yet',
+      desc: 'When you contribute photos to watch pages, they will appear here.',
+    },
+    Votes: {
+      title: 'No votes cast yet',
+      desc: 'Your votes on community photos will be tracked here.',
+    },
+  }
+  const msg = messages[tab]
+  return (
+    <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+      <div className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center">
+        <svg className="w-6 h-6 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+        </svg>
+      </div>
+      <div>
+        <p className="text-white/50 text-sm">{msg.title}</p>
+        <p className="text-white/25 text-xs mt-1">{msg.desc}</p>
+      </div>
+    </div>
+  )
 }
 
 export default function ProfilePage() {
@@ -68,8 +190,13 @@ export default function ProfilePage() {
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [displayName, setDisplayName] = useState('')
+
+  const [submissions, setSubmissions] = useState<any[]>([])
+  const [photos, setPhotos] = useState<any[]>([])
+  const [votes, setVotes] = useState<any[]>([])
+  const [counts, setCounts] = useState({ submissions: 0, photos: 0, votes: 0 })
+
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const supabase = createClient()
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -80,11 +207,50 @@ export default function ProfilePage() {
     })
   }, [])
 
+  useEffect(() => {
+    if (!user) return
+    const uid = user.id
+
+    const fetchData = async () => {
+      const [subData, photoData, voteData] = await Promise.all([
+        supabase
+          .from('submissions')
+          .select('*')
+          .eq('user_id', uid)
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabase
+          .from('watch_photos')
+          .select('*')
+          .eq('user_id', uid)
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabase
+          .from('photo_votes')
+          .select('*, photo:watch_photos(id, image_url, caption, uploader_username)')
+          .eq('user_id', uid)
+          .order('created_at', { ascending: false })
+          .limit(20),
+      ])
+
+      setSubmissions(subData.data || [])
+      setPhotos(photoData.data || [])
+      setVotes(voteData.data || [])
+      setCounts({
+        submissions: subData.count ?? subData.data?.length ?? 0,
+        photos: photoData.count ?? photoData.data?.length ?? 0,
+        votes: voteData.count ?? voteData.data?.length ?? 0,
+      })
+    }
+
+    fetchData()
+  }, [user])
+
   const handleSignIn = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
   }
@@ -107,16 +273,13 @@ export default function ProfilePage() {
     try {
       const fileExt = file.name.split('.').pop()
       const fileName = `${user.id}-${Date.now()}.${fileExt}`
-      
-      // Try to use avatars bucket, fallback to watch-images
+
       const bucketName = 'avatars'
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { data, error: uploadError } = await supabase.storage
         .from(bucketName)
         .upload(fileName, file)
 
       if (uploadError) {
-        // If avatars bucket doesn't exist, show message
         console.error('Upload error:', uploadError)
         alert('Avatar upload not configured. Please contact the administrator.')
         setUploading(false)
@@ -142,11 +305,11 @@ export default function ProfilePage() {
 
   const handleSaveSettings = async () => {
     if (!user) return
-    
+
     await supabase.auth.updateUser({
       data: { full_name: displayName }
     })
-    
+
     setShowSettings(false)
   }
 
@@ -184,7 +347,25 @@ export default function ProfilePage() {
 
   const userMeta = user.user_metadata
   const name = userMeta?.full_name || userMeta?.name || 'Curator'
-  const avatar = userMeta?.avatar_url
+
+  const activityData: Record<Tab, any[]> = {
+    Submissions: submissions,
+    Photos: photos,
+    Votes: votes,
+  }
+
+  const activeItems = activityData[activeTab]
+
+  const renderActivityItem = (item: any) => {
+    switch (activeTab) {
+      case 'Submissions':
+        return <SubmissionCard key={item.id} submission={item} />
+      case 'Photos':
+        return <PhotoCard key={item.id} photo={item} />
+      case 'Votes':
+        return <VoteCard key={item.id} vote={item} />
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-amber-500/20">
@@ -201,8 +382,7 @@ export default function ProfilePage() {
                   <span className="text-3xl font-light text-white/30">{name.charAt(0)}</span>
                 </div>
               )}
-              
-              {/* Upload overlay */}
+
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
@@ -254,17 +434,10 @@ export default function ProfilePage() {
         </header>
 
         <section className="grid grid-cols-2 md:grid-cols-4 mb-28 border border-white/[0.06]">
-          {[
-            { label: 'Total Submissions', value: '0' },
-            { label: 'Votes Cast', value: '0' },
-            { label: 'Photos Contributed', value: '0' },
-            { label: 'Comments', value: '0' },
-          ].map(({ label, value }, i, arr) => (
-            <div key={label} className={`p-8 flex flex-col gap-4 bg-white/[0.015] ${i < arr.length - 1 ? 'border-r border-white/[0.06]' : ''}`}>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-white/30">{label}</span>
-              <span className="text-5xl font-light text-white">{value}</span>
-            </div>
-          ))}
+          <StatCard label="Submissions" value={counts.submissions} accent />
+          <StatCard label="Photos" value={counts.photos} />
+          <StatCard label="Votes Cast" value={counts.votes} />
+          <StatCard label="Archive Impact" value={counts.submissions + counts.photos} />
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
@@ -283,9 +456,11 @@ export default function ProfilePage() {
                 </div>
               </div>
               <div className="space-y-4">
-                {MOCK_ACTIVITY[activeTab].map(item => (
-                  <ActivityItem key={item.title} {...item} />
-                ))}
+                {activeItems.length === 0 ? (
+                  <EmptyState tab={activeTab} name={name} />
+                ) : (
+                  activeItems.map(renderActivityItem)
+                )}
               </div>
             </section>
 
@@ -314,11 +489,19 @@ export default function ProfilePage() {
 
           <aside className="lg:col-span-4 space-y-8">
             <div className="border border-white/[0.06] bg-white/[0.015] p-8 space-y-8">
-              <h2 className="text-2xl font-light tracking-tight">Curator Settings</h2>
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-light tracking-tight">Curator Settings</h2>
+                <button
+                  onClick={handleSignOut}
+                  className="text-[10px] uppercase tracking-widest text-white/30 hover:text-red-400 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
               <div className="space-y-6">
                 {SETTINGS_LINKS.map((label, index) => (
                   <div key={label} className="flex flex-col gap-3 group cursor-pointer">
-                    <button 
+                    <button
                       onClick={() => index === 0 && setShowSettings(true)}
                       className="flex justify-between items-center group-hover:text-amber-500 transition-colors w-full text-left"
                     >
@@ -338,8 +521,12 @@ export default function ProfilePage() {
             <div className="border border-amber-500/10 bg-amber-500/[0.03] p-8 space-y-4">
               <span className="text-[10px] uppercase tracking-[0.2em] text-amber-500/70 font-bold">Archive Contribution</span>
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-light text-amber-500">0</span>
+                <span className="text-4xl font-light text-amber-500">{counts.submissions}</span>
                 <span className="text-xs text-white/30 mb-1 uppercase tracking-widest">nominations</span>
+              </div>
+              <div className="flex items-end gap-2">
+                <span className="text-4xl font-light text-amber-500">{counts.photos}</span>
+                <span className="text-xs text-white/30 mb-1 uppercase tracking-widest">photos</span>
               </div>
             </div>
           </aside>
@@ -351,17 +538,16 @@ export default function ProfilePage() {
           1,000 <span className="text-amber-500">Watches</span>
         </div>
         <div className="text-[10px] tracking-widest uppercase text-white/20">
-          © {new Date().getFullYear()} 1,000 Watches. The Curated Chronology.
+          &copy; {new Date().getFullYear()} 1,000 Watches. The Curated Chronology.
         </div>
       </footer>
 
-      {/* Settings Modal */}
       {showSettings && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="w-full max-w-md p-7 rounded-2xl border border-white/10 bg-[#0d0d0d] shadow-2xl">
             <h3 className="text-lg font-medium text-white mb-1">Profile Identity</h3>
             <p className="text-xs text-white/30 mb-6">Update your curator profile details.</p>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-[10px] uppercase tracking-widest text-white/30 mb-1.5">Display Name</label>
@@ -373,7 +559,7 @@ export default function ProfilePage() {
                   placeholder="Your display name"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-[10px] uppercase tracking-widest text-white/30 mb-1.5">Email</label>
                 <input

@@ -6,10 +6,10 @@ import { createClient } from '@/utils/supabase/client'
 interface PhotoUploaderProps {
   watchId: string
   onUploadComplete: () => void
-  currentPhotoCount: number
+  currentPhotoCount?: number
 }
 
-export default function PhotoUploader({ watchId, onUploadComplete, currentPhotoCount }: PhotoUploaderProps) {
+export default function PhotoUploader({ watchId, onUploadComplete, currentPhotoCount = 0 }: PhotoUploaderProps) {
   const [uploading, setUploading] = useState(false)
   const [caption, setCaption] = useState('')
   const [error, setError] = useState('')
