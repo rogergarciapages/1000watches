@@ -24,6 +24,6 @@ Next.js 16, React 19, Tailwind CSS v4 digital museum for iconic timepieces with 
 
 ## Architecture Notes
 - App Router structure (Next.js 16)
-- Dark mode design with amber accents
--smith Grid of 1,000 slots for watch display
-- Nomination system in Phase 1, curated selection in Phase 2
+- Light & Dark mode luxury design with Playfair Display serif headings and amber accents
+- Grid of 1,000 slots for watch display
+- Community nomination, photo upload, vote, and specification update system

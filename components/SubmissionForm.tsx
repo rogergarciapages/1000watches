@@ -6,18 +6,18 @@ import { createClient } from '@/utils/supabase/client';
 const supabase = createClient();
 
 const FIELD_CLASS = `
-  w-full bg-white/[0.03] border border-white/10 rounded-lg px-4 py-3 text-sm text-white
-  placeholder:text-white/20 focus:outline-none focus:border-amber-500/60 focus:bg-white/[0.05]
+  w-full bg-[var(--bg-primary)] border border-[var(--border-medium)] rounded-lg px-4 py-3 text-sm text-[var(--text-primary)]
+  placeholder:text-[var(--text-dim)] focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/40
   transition-all duration-200 appearance-none
 `.trim();
 
 const SELECT_CLASS = `
-  w-full bg-white/[0.03] border border-white/10 rounded-lg px-4 py-3 text-sm text-white
-  focus:outline-none focus:border-amber-500/60 focus:bg-white/[0.05]
+  w-full bg-[var(--bg-primary)] border border-[var(--border-medium)] rounded-lg px-4 py-3 text-sm text-[var(--text-primary)]
+  focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/40
   transition-all duration-200 appearance-none cursor-pointer
 `.trim();
 
-const LABEL_CLASS = "block text-[10px] uppercase tracking-widest text-white/35 mb-2 font-medium";
+const LABEL_CLASS = "block text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-2 font-medium font-sans";
 
 type FormData = {
   brand: string;
@@ -146,11 +146,11 @@ export default function SubmissionForm() {
   };
 
   return (
-    <div className="p-8 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent backdrop-blur-xl">
+    <div className="p-8 rounded-2xl border border-[var(--border-medium)] bg-[var(--bg-card)] shadow-2xl backdrop-blur-xl transition-colors duration-300">
       {/* Header */}
       <div className="mb-7">
-        <h3 className="text-xl font-display font-light text-white tracking-tight">Nominate a Piece</h3>
-        <p className="text-xs text-white/30 mt-1">No account required. Submissions are reviewed by our curators.</p>
+        <h3 className="text-2xl font-serif font-light text-[var(--text-primary)] tracking-tight">Nominate a Piece</h3>
+        <p className="text-xs text-[var(--text-muted)] mt-1 font-sans">No account required. Submissions are reviewed by our curators.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -220,10 +220,10 @@ export default function SubmissionForm() {
             value={form.movement_type}
             onChange={handleChange('movement_type')}
           >
-            <option value="" className="text-white/20">Select movement type</option>
-            <option value="automatic" className="text-white bg-[#1a1a1a]">Automatic</option>
-            <option value="quartz" className="text-white bg-[#1a1a1a]">Quartz</option>
-            <option value="manual" className="text-white bg-[#1a1a1a]">Manual</option>
+            <option value="" className="text-[var(--text-dim)]">Select movement type</option>
+            <option value="automatic" className="text-[var(--text-primary)] bg-[var(--bg-card)]">Automatic</option>
+            <option value="quartz" className="text-[var(--text-primary)] bg-[var(--bg-card)]">Quartz</option>
+            <option value="manual" className="text-[var(--text-primary)] bg-[var(--bg-card)]">Manual</option>
           </select>
         </div>
 
@@ -232,23 +232,23 @@ export default function SubmissionForm() {
           <label className={LABEL_CLASS}>Watch Photo</label>
           <div className="relative">
             {imagePreview ? (
-              <div className="relative rounded-lg overflow-hidden border border-white/10">
+              <div className="relative rounded-lg overflow-hidden border border-[var(--border-medium)]">
                 <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover" />
                 <button
                   type="button"
                   onClick={removeImage}
-                  className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 hover:bg-red-500/80 text-white flex items-center justify-center transition-colors"
+                  className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/70 hover:bg-red-500 text-white flex items-center justify-center transition-colors"
                 >
                   ×
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-32 rounded-lg border border-dashed border-white/20 bg-white/[0.02] cursor-pointer hover:bg-white/[0.04] hover:border-white/30 transition-all">
-                <svg className="w-8 h-8 text-white/30 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <label className="flex flex-col items-center justify-center w-full h-32 rounded-lg border border-dashed border-[var(--border-medium)] bg-[var(--bg-primary)] cursor-pointer hover:border-amber-500/50 transition-all">
+                <svg className="w-8 h-8 text-[var(--text-muted)] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span className="text-xs text-white/40">Click to upload photo</span>
-                <span className="text-[10px] text-white/20 mt-1">PNG, JPG up to 5MB</span>
+                <span className="text-xs text-[var(--text-muted)] font-sans">Click to upload photo</span>
+                <span className="text-[10px] text-[var(--text-dim)] mt-1 font-sans">PNG, JPG up to 5MB</span>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -267,8 +267,8 @@ export default function SubmissionForm() {
           type="submit"
           disabled={submitting || uploading}
           className={`w-full py-4 mt-2 rounded-xl bg-amber-600 text-black font-bold text-xs uppercase tracking-[0.2em]
-            transition-all transform hover:bg-amber-500 active:scale-[0.98]
-            disabled:opacity-40 disabled:cursor-not-allowed`}
+            transition-all transform hover:bg-amber-500 active:scale-[0.98] shadow-lg shadow-amber-600/10
+            disabled:opacity-40 disabled:cursor-not-allowed font-sans`}
         >
           {submitting || uploading ? (
             <span className="flex items-center justify-center gap-2">
@@ -285,7 +285,7 @@ export default function SubmissionForm() {
         {status === 'success' && (
           <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20 animate-fade-in">
             <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
-            <p className="text-xs text-green-400">
+            <p className="text-xs text-green-500 font-sans">
               Nomination received. Our curators will review your submission.
             </p>
           </div>
@@ -293,7 +293,7 @@ export default function SubmissionForm() {
         {status === 'error' && (
           <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 animate-fade-in">
             <div className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
-            <p className="text-xs text-red-400">{errorMsg}</p>
+            <p className="text-xs text-red-500 font-sans">{errorMsg}</p>
           </div>
         )}
       </form>

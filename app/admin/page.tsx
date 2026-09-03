@@ -69,23 +69,23 @@ export default async function AdminPage() {
   const slotsRemaining = 1000 - (totalFilled ?? 0)
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white">
-      <header className="border-b border-white/[0.06] bg-[#080808]">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300">
+      <header className="border-b border-[var(--border-subtle)] bg-[var(--bg-secondary)]">
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between font-sans">
           <div className="flex items-center gap-4">
             <div className="w-5 h-5 rounded-full border border-amber-500/40 flex items-center justify-center">
               <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
             </div>
-            <span className="text-xs uppercase tracking-[0.25em] text-white/50">1,000 Watches</span>
-            <span className="text-white/10">/</span>
-            <span className="text-xs uppercase tracking-[0.25em] text-amber-500">Admin</span>
+            <span className="text-xs uppercase tracking-[0.25em] text-[var(--text-primary)] font-bold">1,000 Watches</span>
+            <span className="text-[var(--text-muted)]">/</span>
+            <span className="text-xs uppercase tracking-[0.25em] text-amber-500 font-bold">Admin</span>
           </div>
           <div className="flex items-center gap-4">
             <a
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] uppercase tracking-widest text-white/30 hover:text-white/60 transition-colors"
+              className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] hover:text-amber-500 transition-colors"
             >
               View Site ↗
             </a>
@@ -108,22 +108,22 @@ export default async function AdminPage() {
           ].map(({ label, value, accent }) => (
             <div
               key={label}
-              className="p-5 rounded-xl border border-white/[0.06] bg-white/[0.02]"
+              className="p-5 rounded-xl border border-[var(--border-medium)] bg-[var(--bg-card)] shadow-sm"
             >
-              <p className={`text-2xl font-light ${accent ? 'text-amber-500' : 'text-white'}`}>
+              <p className={`text-2xl font-serif font-light ${accent ? 'text-amber-500 font-bold' : 'text-[var(--text-primary)]'}`}>
                 {value}
               </p>
-              <p className="text-[10px] uppercase tracking-widest text-white/30 mt-1">{label}</p>
+              <p className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] mt-1 font-sans">{label}</p>
             </div>
           ))}
         </div>
 
-        <div className="space-y-2">
-          <div className="flex justify-between text-[10px] uppercase tracking-widest text-white/25">
+        <div className="space-y-2 font-sans">
+          <div className="flex justify-between text-[10px] uppercase tracking-widest text-[var(--text-muted)]">
             <span>Archive Progress</span>
-            <span>{totalFilled ?? 0} / 1,000</span>
+            <span className="font-mono">{totalFilled ?? 0} / 1,000</span>
           </div>
-          <div className="h-1.5 w-full bg-white/[0.05] rounded-full overflow-hidden">
+          <div className="h-1.5 w-full bg-[var(--border-subtle)] rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-amber-600 to-amber-400 rounded-full transition-all duration-700"
               style={{ width: `${((totalFilled ?? 0) / 1000) * 100}%` }}
@@ -134,13 +134,13 @@ export default async function AdminPage() {
         <section>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-base font-medium text-white">Submissions Queue</h2>
-              <p className="text-xs text-white/30 mt-0.5">
+              <h2 className="text-xl font-serif font-light text-[var(--text-primary)]">Submissions Queue</h2>
+              <p className="text-xs text-[var(--text-muted)] mt-0.5 font-sans">
                 {totalSubmissions ?? 0} pending nomination{(totalSubmissions ?? 0) !== 1 ? 's' : ''}
               </p>
             </div>
           </div>
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-6">
+          <div className="rounded-xl border border-[var(--border-medium)] bg-[var(--bg-card)] p-6 shadow-sm">
             <SubmissionsQueue submissions={submissions ?? []} />
           </div>
         </section>
@@ -148,13 +148,13 @@ export default async function AdminPage() {
         <section>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-base font-medium text-white">Filled Slots</h2>
-              <p className="text-xs text-white/30 mt-0.5">
+              <h2 className="text-xl font-serif font-light text-[var(--text-primary)]">Filled Slots</h2>
+              <p className="text-xs text-[var(--text-muted)] mt-0.5 font-sans">
                 {totalFilled ?? 0} slot{(totalFilled ?? 0) !== 1 ? 's' : ''} in the archive
               </p>
             </div>
           </div>
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-6">
+          <div className="rounded-xl border border-[var(--border-medium)] bg-[var(--bg-card)] p-6 shadow-sm">
             <SlotsManager filledSlots={filledSlots ?? []} slotPhotos={slotPhotos} />
           </div>
         </section>

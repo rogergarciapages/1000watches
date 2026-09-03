@@ -38,26 +38,26 @@ export default async function BrandPage({ params }: { params: Promise<{ brand: s
   }
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-amber-500/30">
+    <main className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] selection:bg-amber-500/30 transition-colors duration-300">
       <Navbar />
       
       <div className="pt-32 pb-20 px-6">
         <div className="max-w-6xl mx-auto">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-xs text-white/30 mb-8">
+          <nav className="flex items-center gap-2 text-xs text-[var(--text-muted)] mb-8 font-sans">
             <a href="/" className="hover:text-amber-500 transition-colors">Home</a>
             <span>/</span>
             <a href="/timepieces" className="hover:text-amber-500 transition-colors">Brands</a>
             <span>/</span>
-            <span className="text-white/50">{brandName}</span>
+            <span className="text-[var(--text-secondary)]">{brandName}</span>
           </nav>
 
           <div className="mb-12">
-            <p className="text-[10px] uppercase tracking-widest text-amber-500 mb-3">{brandName}</p>
-            <h1 className="text-4xl md:text-5xl font-display font-light tracking-tight">
+            <p className="text-[10px] uppercase tracking-widest text-amber-500 mb-3 font-sans">{brandName}</p>
+            <h1 className="text-4xl md:text-5xl font-serif font-light tracking-tight text-[var(--text-primary)]">
               Collection
             </h1>
-            <p className="text-white/40 mt-3 max-w-lg">
+            <p className="text-[var(--text-muted)] mt-3 max-w-lg font-sans text-sm">
               {watches.length} {watches.length === 1 ? 'timepiece' : 'timepieces'} from {brandName} in our archive.
             </p>
           </div>
@@ -72,7 +72,7 @@ export default async function BrandPage({ params }: { params: Promise<{ brand: s
                   href={`/timepieces/${watchSlug}`}
                   className="group block"
                 >
-                  <div className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-white/[0.02] group-hover:border-amber-500/40 transition-all">
+                  <div className="relative aspect-square rounded-xl overflow-hidden border border-[var(--border-medium)] bg-[var(--bg-card)] group-hover:border-amber-500/40 transition-all duration-300 shadow-sm">
                     {watch.image_url ? (
                       <img 
                         src={watch.image_url} 
@@ -80,9 +80,9 @@ export default async function BrandPage({ params }: { params: Promise<{ brand: s
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center">
-                          <span className="text-2xl font-display text-white/20">{watch.id}</span>
+                      <div className="w-full h-full flex items-center justify-center bg-[var(--bg-secondary)]">
+                        <div className="w-20 h-20 rounded-full border border-[var(--border-medium)] flex items-center justify-center">
+                          <span className="text-2xl font-serif text-[var(--text-muted)]">{watch.id}</span>
                         </div>
                       </div>
                     )}
@@ -90,22 +90,22 @@ export default async function BrandPage({ params }: { params: Promise<{ brand: s
                     {/* Hover overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="absolute bottom-4 left-4 right-4">
-                        <p className="text-xs text-amber-400 font-medium uppercase tracking-wider">View Details →</p>
+                        <p className="text-xs text-amber-400 font-medium uppercase tracking-wider font-sans">View Details →</p>
                       </div>
                     </div>
                     
                     {/* Slot badge */}
-                    <div className="absolute top-3 left-3 px-2 py-1 rounded-md bg-black/50 backdrop-blur-sm border border-white/10 text-[10px] uppercase tracking-widest text-white/40">
+                    <div className="absolute top-3 left-3 px-2 py-1 rounded-md bg-[var(--bg-elevated)]/80 backdrop-blur-sm border border-[var(--border-medium)] text-[10px] uppercase tracking-widest text-[var(--text-muted)] font-mono">
                       #{watch.id}
                     </div>
                   </div>
                   
-                  <div className="mt-3">
-                    <h2 className="text-base font-display font-light text-white group-hover:text-amber-400 transition-colors">
+                  <div className="mt-3 font-sans">
+                    <h2 className="text-lg font-serif font-light text-[var(--text-primary)] group-hover:text-amber-500 transition-colors">
                       {watch.model}
                     </h2>
                     {watch.year && (
-                      <p className="text-xs text-white/30 mt-1">{watch.year}</p>
+                      <p className="text-xs text-[var(--text-muted)] mt-1 font-mono">{watch.year}</p>
                     )}
                   </div>
                 </Link>

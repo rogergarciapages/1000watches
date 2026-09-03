@@ -153,7 +153,7 @@ export default function PhotoUploader({ watchId, onUploadComplete, currentPhotoC
   const isUserMaxReached = userPhotoCount >= MAX_PHOTOS_PER_USER
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-sans">
       <div
         onDragOver={(e) => { e.preventDefault(); setDragActive(true) }}
         onDragLeave={() => setDragActive(false)}
@@ -163,8 +163,8 @@ export default function PhotoUploader({ watchId, onUploadComplete, currentPhotoC
           dragActive
             ? 'border-amber-500 bg-amber-500/10'
             : isUserMaxReached
-              ? 'border-white/5 cursor-not-allowed opacity-40'
-              : 'border-white/10 hover:border-white/20'
+              ? 'border-[var(--border-subtle)] cursor-not-allowed opacity-40'
+              : 'border-[var(--border-medium)] bg-[var(--bg-card)] hover:border-amber-500/50'
         }`}
       >
         <input
@@ -179,25 +179,25 @@ export default function PhotoUploader({ watchId, onUploadComplete, currentPhotoC
         {uploading ? (
           <div className="flex flex-col items-center gap-3">
             <div className="w-10 h-10 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-            <p className="text-white/60 text-sm">Converting & uploading...</p>
+            <p className="text-[var(--text-secondary)] text-sm">Converting & uploading...</p>
           </div>
         ) : isUserMaxReached ? (
           <div className="flex flex-col items-center gap-3">
-            <svg className="w-10 h-10 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-10 h-10 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p className="text-white/30 text-sm">You&apos;ve reached your limit of {MAX_PHOTOS_PER_USER} photos</p>
+            <p className="text-[var(--text-muted)] text-sm">You&apos;ve reached your limit of {MAX_PHOTOS_PER_USER} photos</p>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3">
-            <svg className="w-10 h-10 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-10 h-10 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
             <div>
-              <p className="text-white/60 text-sm">Drag & drop a photo here</p>
-              <p className="text-white/30 text-xs mt-1">or click to browse</p>
+              <p className="text-[var(--text-secondary)] text-sm font-medium">Drag & drop a photo here</p>
+              <p className="text-[var(--text-muted)] text-xs mt-1">or click to browse</p>
             </div>
-            <p className="text-white/20 text-xs">JPG, PNG, WebP → auto-converted to WebP • Max 10MB</p>
+            <p className="text-[var(--text-dim)] text-xs">JPG, PNG, WebP → auto-converted to WebP • Max 10MB</p>
           </div>
         )}
       </div>
@@ -208,16 +208,16 @@ export default function PhotoUploader({ watchId, onUploadComplete, currentPhotoC
           placeholder="Add a caption (optional)"
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-white/30 text-sm focus:border-amber-500/50 focus:outline-none"
+          className="w-full bg-[var(--bg-primary)] border border-[var(--border-medium)] rounded-lg px-4 py-2 text-[var(--text-primary)] placeholder:text-[var(--text-dim)] text-sm focus:border-amber-500/50 focus:outline-none"
           disabled={isUserMaxReached}
         />
       </div>
 
       {error && (
-        <p className="text-red-400 text-sm">{error}</p>
+        <p className="text-red-500 text-sm font-medium">{error}</p>
       )}
 
-      <p className="text-white/20 text-xs text-center">
+      <p className="text-[var(--text-dim)] text-xs text-center font-mono">
         {userPhotoCount} / {MAX_PHOTOS_PER_USER} photos uploaded by you
       </p>
     </div>

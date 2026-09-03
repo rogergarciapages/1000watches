@@ -91,7 +91,7 @@ export default function VoteButton({
     } finally {
       setLoading(false)
     }
-  }, [submissionId, supabase])
+  }, [submissionId, supabase, table])
 
   useEffect(() => {
     fetchVoteStatus()
@@ -114,14 +114,10 @@ export default function VoteButton({
     try {
       if (hasVoted && userVoteId) {
         // Remove vote (toggle off)
-        console.log('Removing vote:', userVoteId)
-        
         const { error: deleteError } = await supabase
           .from('votes')
           .delete()
           .eq('id', userVoteId)
-        
-        console.log('Delete result:', deleteError)
         
         if (deleteError) {
           console.error('Failed to delete vote:', deleteError)
@@ -133,8 +129,6 @@ export default function VoteButton({
         setUserVoteId(null)
       } else {
         // Add vote (toggle on)
-        console.log('Adding vote for user:', user.id, 'submission:', submissionId)
-        
         const { data: voteData, error: insertError } = await supabase
           .from('votes')
           .insert({
@@ -143,8 +137,6 @@ export default function VoteButton({
           })
           .select('id')
           .maybeSingle()
-
-        console.log('Insert result:', insertError, voteData)
 
         if (insertError) {
           console.error('Failed to insert vote:', insertError)
@@ -175,7 +167,7 @@ export default function VoteButton({
 
   return (
     <>
-      <div className="inline-flex items-center gap-2">
+      <div className="inline-flex items-center gap-2 font-sans">
         <button
           onClick={handleVote}
           disabled={voting || loading}
@@ -183,8 +175,8 @@ export default function VoteButton({
             group relative flex items-center gap-2 rounded-xl border transition-all duration-200
             ${buttonClass}
             ${hasVoted 
-              ? 'bg-amber-500/20 border-amber-500/50 text-amber-400' 
-              : 'bg-white/5 border-white/10 text-white/60 hover:bg-amber-500/10 hover:border-amber-500/30 hover:text-amber-400'
+              ? 'bg-amber-500/20 border-amber-500/50 text-amber-500' 
+              : 'bg-[var(--bg-card)] border-[var(--border-medium)] text-[var(--text-secondary)] hover:bg-amber-500/10 hover:border-amber-500/40 hover:text-amber-500'
             }
             disabled:opacity-50 disabled:cursor-not-allowed
           `}
@@ -195,13 +187,13 @@ export default function VoteButton({
               transition-all duration-200
               ${animating && direction === 'up' ? 'opacity-100 scale-100' : 'opacity-0 scale-150'}
             `}>
-              <svg className="w-full h-full text-amber-400" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="w-full h-full text-amber-500" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 4l-8 8h5v8h6v-8h5z" />
               </svg>
             </span>
             
             <svg
-              className={`transition-all duration-200 ${hasVoted ? 'text-amber-400' : 'text-current'} group-hover:scale-110`}
+              className={`transition-all duration-200 ${hasVoted ? 'text-amber-500' : 'text-current'} group-hover:scale-110`}
               width={iconSize}
               height={iconSize}
               viewBox="0 0 24 24"
@@ -213,20 +205,20 @@ export default function VoteButton({
             </svg>
           </span>
 
-          <span className={`font-medium tracking-wide ${hasVoted ? 'text-amber-400' : 'text-white/60'}`}>
+          <span className={`font-medium tracking-wide ${hasVoted ? 'text-amber-500 font-bold' : 'text-[var(--text-secondary)]'}`}>
             {hasVoted ? 'Voted' : 'Vote'}
           </span>
 
           {voting && (
             <span className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
-              <span className="absolute inset-0 bg-amber-400/20 animate-ping" />
+              <span className="absolute inset-0 bg-amber-500/20 animate-ping" />
             </span>
           )}
         </button>
 
         {showCount && (
-          <div className={`flex items-center justify-center min-w-[3rem] px-2 py-1 rounded-lg bg-white/5 border border-white/10 ${animating ? 'scale-110' : 'scale-100'} transition-transform duration-200`}>
-            <span className={`font-bold tabular-nums ${hasVoted ? 'text-amber-400' : 'text-white/80'} ${animating ? 'scale-125' : 'scale-100'} transition-transform duration-200`}>
+          <div className={`flex items-center justify-center min-w-[3rem] px-2 py-1 rounded-lg bg-[var(--bg-card)] border border-[var(--border-medium)] ${animating ? 'scale-110' : 'scale-100'} transition-transform duration-200`}>
+            <span className={`font-bold tabular-nums ${hasVoted ? 'text-amber-500' : 'text-[var(--text-primary)]'} ${animating ? 'scale-125' : 'scale-100'} transition-transform duration-200`}>
               {votes}
             </span>
           </div>
@@ -236,19 +228,19 @@ export default function VoteButton({
       {showLoginPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowLoginPrompt(false)} />
-          <div className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 max-w-sm w-full mx-4 text-center">
+          <div className="relative bg-[var(--bg-elevated)] border border-[var(--border-medium)] rounded-2xl p-8 max-w-sm w-full mx-4 text-center shadow-2xl">
             <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
               <svg className="w-6 h-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h3 className="text-xl font-display font-light text-white mb-2">Sign in to Vote</h3>
-            <p className="text-white/40 text-sm mb-6">You need an account to vote for your favorite watches.</p>
-            <div className="flex flex-col gap-3">
-              <Link href="/profile" className="px-6 py-3 rounded-xl bg-amber-500 text-black font-bold text-sm uppercase tracking-wider hover:bg-amber-400 transition-colors">
+            <h3 className="text-xl font-serif font-light text-[var(--text-primary)] mb-2">Sign in to Vote</h3>
+            <p className="text-[var(--text-muted)] text-sm mb-6 font-sans">You need an account to vote for your favorite watches.</p>
+            <div className="flex flex-col gap-3 font-sans">
+              <Link href="/profile" className="px-6 py-3 rounded-xl bg-amber-600 text-black font-bold text-sm uppercase tracking-wider hover:bg-amber-500 transition-colors shadow-lg shadow-amber-600/10">
                 Sign In
               </Link>
-              <button onClick={() => setShowLoginPrompt(false)} className="text-white/40 text-sm hover:text-white/60 transition-colors">
+              <button onClick={() => setShowLoginPrompt(false)} className="text-[var(--text-muted)] text-sm hover:text-[var(--text-primary)] transition-colors">
                 Maybe later
               </button>
             </div>

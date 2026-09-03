@@ -30,33 +30,33 @@ export default function SubmissionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-amber-500/30">
+    <main className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] selection:bg-amber-500/30 transition-colors duration-300">
       <Navbar />
 
       <div className="pt-32 pb-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-display font-light tracking-tight mb-4">
-              Community <span className="text-amber-500">Nominations</span>
+            <h1 className="text-4xl md:text-5xl font-serif font-light tracking-tight mb-4 text-[var(--text-primary)]">
+              Community <span className="text-amber-500 italic">Nominations</span>
             </h1>
-            <p className="text-white/40 max-w-lg mx-auto">
+            <p className="text-[var(--text-muted)] max-w-lg mx-auto font-sans text-sm">
               Vote for your favorite watches. The most popular nominations will be added to the archive.
             </p>
           </div>
 
           {submissions.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-white/30 mb-6">No nominations yet. Be the first to submit!</p>
+              <p className="text-[var(--text-muted)] mb-6 font-sans">No nominations yet. Be the first to submit!</p>
               <Link 
                 href="/#nominate"
-                className="px-8 py-3.5 rounded-xl bg-amber-600 text-black font-bold text-xs uppercase tracking-[0.2em]"
+                className="px-8 py-3.5 rounded-xl bg-amber-600 text-black font-bold text-xs uppercase tracking-[0.2em] shadow-lg shadow-amber-600/10"
               >
                 Submit a Watch
               </Link>
@@ -66,21 +66,21 @@ export default function SubmissionsPage() {
               {submissions.map((sub, index) => (
                 <div 
                   key={sub.id}
-                  className="group relative rounded-xl overflow-hidden border border-white/10 bg-white/[0.02] hover:border-amber-500/30 transition-all"
+                  className="group relative rounded-xl overflow-hidden border border-[var(--border-medium)] bg-[var(--bg-card)] hover:border-amber-500/40 transition-all duration-300 shadow-sm hover:shadow-md"
                 >
                   {/* Rank badge */}
-                  <div className="absolute top-3 left-3 z-10 px-2 py-1 rounded-md bg-amber-500/20 backdrop-blur-sm border border-amber-500/30 text-[10px] font-bold text-amber-400">
+                  <div className="absolute top-3 left-3 z-10 px-2 py-1 rounded-md bg-amber-500/20 backdrop-blur-sm border border-amber-500/40 text-[10px] font-bold text-amber-500">
                     #{index + 1}
                   </div>
 
                   {/* Image */}
-                  <div className="aspect-square bg-white/[0.02]">
+                  <div className="aspect-square bg-[var(--bg-secondary)]">
                     {sub.image_url ? (
                       <img src={sub.image_url} alt={sub.model} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <div className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center">
-                          <span className="text-2xl text-white/20">{sub.brand?.[0]}</span>
+                        <div className="w-16 h-16 rounded-full border border-[var(--border-medium)] flex items-center justify-center">
+                          <span className="text-2xl text-[var(--text-muted)] font-serif">{sub.brand?.[0]}</span>
                         </div>
                       </div>
                     )}
@@ -88,8 +88,8 @@ export default function SubmissionsPage() {
 
                   {/* Info */}
                   <div className="p-4">
-                    <h3 className="text-sm font-medium text-white truncate">{sub.brand}</h3>
-                    <p className="text-xs text-white/50 truncate">{sub.model}</p>
+                    <h3 className="text-sm font-medium text-[var(--text-primary)] truncate font-sans">{sub.brand}</h3>
+                    <p className="text-xs text-[var(--text-muted)] truncate font-serif italic">{sub.model}</p>
                     
                     <div className="flex items-center justify-between mt-4">
                       <VoteButton
@@ -98,7 +98,7 @@ export default function SubmissionsPage() {
                         size="sm"
                         table="submissions"
                       />
-                      <span className="text-[10px] text-white/30">{sub.year}</span>
+                      <span className="text-[10px] text-[var(--text-dim)] font-mono">{sub.year}</span>
                     </div>
                   </div>
                 </div>

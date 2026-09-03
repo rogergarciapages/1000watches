@@ -28,9 +28,9 @@ function SpecRow({ label, value, suffix, prefix, isBoolean }: {
   }
   
   return (
-    <div>
-      <p className="text-[10px] uppercase tracking-widest text-white/25 mb-1">{label}</p>
-      <p className={displayValue ? 'text-white/80' : 'text-white/15'}>{displayValue || '—'}</p>
+    <div className="font-sans">
+      <p className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1">{label}</p>
+      <p className={displayValue ? 'text-[var(--text-primary)] font-medium' : 'text-[var(--text-dim)]'}>{displayValue || '—'}</p>
     </div>
   )
 }
@@ -54,7 +54,7 @@ function SpecSection({
   
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-widest text-amber-500/60 mb-3 border-b border-white/5 pb-2">{title}</p>
+      <p className="text-[10px] uppercase tracking-widest text-amber-500 font-bold mb-3 border-b border-[var(--border-subtle)] pb-2 font-sans">{title}</p>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-4">
         {fields.map((field: { key: string; label: string; suffix?: string; prefix?: string; isBoolean?: boolean }) => {
           const value = specs[field.key]
@@ -133,11 +133,9 @@ export default function WatchPage() {
     setLoading(false)
   }
 
-  
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     )
@@ -145,28 +143,28 @@ export default function WatchPage() {
 
   if (!watch) {
     return (
-      <main className="min-h-screen bg-[#050505] text-white">
+      <main className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300">
         <Navbar />
         <div className="pt-32 pb-20 px-6 text-center">
-          <h1 className="text-2xl">Watch not found</h1>
+          <h1 className="text-2xl font-serif">Watch not found</h1>
         </div>
       </main>
     )
   }
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-amber-500/30">
+    <main className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] selection:bg-amber-500/30 transition-colors duration-300">
       <Navbar />
       
       <div className="pt-32 pb-20 px-6">
         <div className="max-w-4xl mx-auto">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-xs text-white/30 mb-8">
+          <nav className="flex items-center gap-2 text-xs text-[var(--text-muted)] mb-8 font-sans">
             <a href="/" className="hover:text-amber-500 transition-colors">Home</a>
             <span>/</span>
             <a href="/#archive" className="hover:text-amber-500 transition-colors">Archive</a>
             <span>/</span>
-            <span className="text-white/50">{watch.brand} {watch.model}</span>
+            <span className="text-[var(--text-secondary)]">{watch.brand} {watch.model}</span>
           </nav>
 
           {/* Hero */}
@@ -176,8 +174,8 @@ export default function WatchPage() {
               <PhotoGallery watchId={watch.uuid} userId={user?.id} onPhotoCountChange={setPhotoCount} />
               
               {user && (
-                <div className="pt-4 border-t border-white/10">
-                  <p className="text-[10px] uppercase tracking-widest text-amber-500 mb-3">Add Your Photo</p>
+                <div className="pt-4 border-t border-[var(--border-medium)] font-sans">
+                  <p className="text-[10px] uppercase tracking-widest text-amber-500 font-bold mb-3">Add Your Photo</p>
                   <PhotoUploader watchId={watch.uuid} onUploadComplete={() => {}} />
                 </div>
               )}
@@ -186,11 +184,11 @@ export default function WatchPage() {
             {/* Details */}
             <div className="space-y-6">
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-amber-500 mb-2">Archive Slot #{watch.id}</p>
-                <h1 className="text-4xl md:text-5xl font-display font-light tracking-tight">
+                <p className="text-[10px] uppercase tracking-widest text-amber-500 font-bold mb-2 font-sans">Archive Slot #{watch.id}</p>
+                <h1 className="text-4xl md:text-5xl font-serif font-light tracking-tight text-[var(--text-primary)]">
                   {watch.brand}
                 </h1>
-                <h2 className="text-2xl md:text-3xl font-display font-light text-white/60 mt-1">
+                <h2 className="text-2xl md:text-3xl font-serif font-light italic text-[var(--text-secondary)] mt-1">
                   {watch.model}
                 </h2>
               </div>
@@ -205,60 +203,60 @@ export default function WatchPage() {
                 {user && (
                   <Link
                     href={`/timepieces/${brandSlug}/${modelSlug}/edit`}
-                    className="px-4 py-2 rounded-xl border border-white/10 text-white/60 hover:text-amber-400 hover:border-amber-500/30 text-sm"
+                    className="px-4 py-2 rounded-xl border border-[var(--border-medium)] text-[var(--text-secondary)] hover:text-amber-500 hover:border-amber-500/40 text-sm transition-all font-sans"
                   >
                     Edit Specs
                   </Link>
                 )}
               </div>
 
-              <div className="h-px bg-white/10" />
+              <div className="h-px bg-[var(--border-subtle)]" />
 
               {/* Specs */}
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-6 font-sans">
                 {watch.year && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-white/30 mb-1">Year</p>
-                    <p className="text-lg font-light">{watch.year}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1">Year</p>
+                    <p className="text-lg font-serif font-light text-[var(--text-primary)]">{watch.year}</p>
                   </div>
                 )}
                 {watch.material && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-white/30 mb-1">Material</p>
-                    <p className="text-lg font-light">{watch.material}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1">Material</p>
+                    <p className="text-lg font-serif font-light text-[var(--text-primary)]">{watch.material}</p>
                   </div>
                 )}
                 {watch.movement_type && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-white/30 mb-1">Movement</p>
-                    <p className="text-lg font-light capitalize">{watch.movement_type}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1">Movement</p>
+                    <p className="text-lg font-serif font-light capitalize text-[var(--text-primary)]">{watch.movement_type}</p>
                   </div>
                 )}
                 {watch.reference && (
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-white/30 mb-1">Reference</p>
-                    <p className="text-lg font-light">{watch.reference}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1">Reference</p>
+                    <p className="text-lg font-mono font-light text-[var(--text-primary)]">{watch.reference}</p>
                   </div>
                 )}
               </div>
 
               {/* Description */}
-              <div className="pt-4">
-                <p className="text-sm text-white/40 leading-relaxed">
+              <div className="pt-4 font-sans">
+                <p className="text-sm text-[var(--text-muted)] leading-relaxed">
                   Part of the 1,000 Watches digital archive — a curated collection of the most iconic timepieces in horological history.
                 </p>
               </div>
 
               {/* Detailed Specifications */}
               <div className="pt-8">
-                <div className="h-px bg-white/10 mb-8" />
+                <div className="h-px bg-[var(--border-subtle)] mb-8" />
                 
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-medium text-amber-500">Specifications</h3>
+                  <h3 className="text-2xl font-serif font-light text-amber-500">Specifications</h3>
                   {user && (
                     <Link
                       href={`/timepieces/${brandSlug}/${modelSlug}/edit`}
-                      className="px-4 py-2 rounded-xl border border-amber-500/30 text-amber-400 text-sm hover:bg-amber-500/10"
+                      className="px-4 py-2 rounded-xl border border-amber-500/30 text-amber-500 text-sm hover:bg-amber-500/10 font-sans"
                     >
                       {specs ? 'Edit Specifications' : 'Add Specifications'}
                     </Link>
@@ -275,7 +273,7 @@ export default function WatchPage() {
                     <SpecSection title="Strap & Bracelet" category="strap" specs={specs} />
                     <SpecSection title="Market & Pricing" category="market" specs={specs} />
                     
-                    {/* Additional/Extra fields - show any specs not in the main categories */}
+                    {/* Additional/Extra fields */}
                     {(() => {
                       const knownFields = new Set(
                         [...specFields.core, ...specFields.type, ...specFields.case, ...specFields.dial, ...specFields.movement, ...specFields.strap, ...specFields.market].map(f => f.key)
@@ -288,7 +286,7 @@ export default function WatchPage() {
                       if (extraFields.length === 0) return null
                       return (
                         <div>
-                          <p className="text-[10px] uppercase tracking-widest text-amber-500/60 mb-3 border-b border-white/5 pb-2">Additional Information</p>
+                          <p className="text-[10px] uppercase tracking-widest text-amber-500 font-bold mb-3 border-b border-[var(--border-subtle)] pb-2 font-sans">Additional Information</p>
                           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-4">
                             {extraFields.map(([key, value]) => (
                               <SpecRow key={key} label={key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} value={value as string | number | boolean} />
@@ -299,18 +297,18 @@ export default function WatchPage() {
                     })()}
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <p className="text-white/30 mb-4">No specifications have been added yet.</p>
-                    <p className="text-white/20 text-sm">Be the first to contribute detailed specifications for this timepiece.</p>
+                  <div className="text-center py-12 font-sans">
+                    <p className="text-[var(--text-muted)] mb-4">No specifications have been added yet.</p>
+                    <p className="text-[var(--text-dim)] text-sm">Be the first to contribute detailed specifications for this timepiece.</p>
                   </div>
                 )}
               </div>
 
               {/* Navigation */}
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-4 pt-4 font-sans">
                 <a 
                   href="/#archive"
-                  className="px-6 py-3 rounded-xl border border-white/10 hover:border-white/20 text-white/60 hover:text-white text-xs uppercase tracking-[0.15em] transition-all"
+                  className="px-6 py-3 rounded-xl border border-[var(--border-medium)] hover:border-amber-500/40 text-[var(--text-secondary)] hover:text-amber-500 text-xs uppercase tracking-[0.15em] transition-all"
                 >
                   ← Back to Archive
                 </a>

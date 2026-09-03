@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import ThemeToggle from '@/components/ThemeToggle'
 
 export default function Navbar() {
   const [user, setUser] = useState<any>(null)
@@ -29,15 +30,15 @@ export default function Navbar() {
   }
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-[#050505]/80 backdrop-blur-xl">
+    <header className="fixed top-0 inset-x-0 z-50 border-b border-[var(--border-subtle)] bg-[var(--glass-bg)] backdrop-blur-xl transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <div className="w-6 h-6 rounded-full border border-amber-500/40 flex items-center justify-center group-hover:border-amber-500 transition-colors">
             <div className="w-2 h-2 rounded-full bg-amber-500/60 group-hover:bg-amber-500 transition-colors" />
           </div>
-          <span className="text-sm font-light tracking-[0.15em] text-white/80 group-hover:text-white transition-colors uppercase">
-            1,000 <span className="text-amber-500">Watches</span>
+          <span className="text-sm font-light tracking-[0.15em] text-[var(--text-primary)] group-hover:text-amber-500 transition-colors uppercase">
+            1,000 <span className="text-amber-500 font-serif lowercase italic">Watches</span>
           </span>
         </Link>
 
@@ -45,25 +46,25 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center gap-8">
           <Link 
             href="/#archive"
-            className="text-[11px] uppercase tracking-widest text-white/40 hover:text-amber-500 transition-colors"
+            className="text-[11px] uppercase tracking-widest text-[var(--text-muted)] hover:text-amber-500 transition-colors"
           >
             Archive
           </Link>
           <Link 
             href="/timepieces"
-            className="text-[11px] uppercase tracking-widest text-white/40 hover:text-amber-500 transition-colors"
+            className="text-[11px] uppercase tracking-widest text-[var(--text-muted)] hover:text-amber-500 transition-colors"
           >
             Brands
           </Link>
           <Link 
             href="/submissions"
-            className="text-[11px] uppercase tracking-widest text-white/40 hover:text-amber-500 transition-colors"
+            className="text-[11px] uppercase tracking-widest text-[var(--text-muted)] hover:text-amber-500 transition-colors"
           >
             Vote
           </Link>
           <Link 
             href="/#nominate"
-            className="text-[11px] uppercase tracking-widest text-white/40 hover:text-amber-500 transition-colors"
+            className="text-[11px] uppercase tracking-widest text-[var(--text-muted)] hover:text-amber-500 transition-colors"
           >
             Submit
           </Link>
@@ -71,8 +72,10 @@ export default function Navbar() {
 
         {/* Actions */}
         <div className="flex items-center gap-4">
+          <ThemeToggle />
+
           {loading ? (
-            <div className="w-6 h-6 border border-white/10 rounded-full animate-pulse" />
+            <div className="w-6 h-6 border border-[var(--border-subtle)] rounded-full animate-pulse" />
           ) : user ? (
             <>
               <Link href="/profile" className="flex items-center gap-2 group">
@@ -80,11 +83,11 @@ export default function Navbar() {
                   <img 
                     src={user.user_metadata.avatar_url} 
                     alt="Profile" 
-                    className="w-7 h-7 rounded-full border border-white/20 group-hover:border-amber-500/50 transition-colors"
+                    className="w-7 h-7 rounded-full border border-[var(--border-medium)] group-hover:border-amber-500/50 transition-colors"
                   />
                 ) : (
-                  <div className="w-7 h-7 rounded-full border border-white/20 flex items-center justify-center group-hover:border-amber-500/50 transition-colors">
-                    <svg className="w-4 h-4 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <div className="w-7 h-7 rounded-full border border-[var(--border-medium)] flex items-center justify-center group-hover:border-amber-500/50 transition-colors">
+                    <svg className="w-4 h-4 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
                     </svg>
                   </div>
@@ -92,7 +95,7 @@ export default function Navbar() {
               </Link>
               <button 
                 onClick={handleSignOut}
-                className="text-[11px] uppercase tracking-widest text-white/40 hover:text-white transition-colors"
+                className="text-[11px] uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
                 Sign Out
               </button>
@@ -101,7 +104,7 @@ export default function Navbar() {
             <>
               <Link 
                 href="/profile" 
-                className="text-[11px] uppercase tracking-widest text-white/40 hover:text-white transition-colors"
+                className="text-[11px] uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
                 Sign In
               </Link>

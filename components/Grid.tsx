@@ -72,22 +72,22 @@ export default function Grid() {
       <div className="flex items-center justify-between mb-4 px-1">
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-          <span className="text-xs font-mono text-white/40 uppercase tracking-widest">
+          <span className="text-xs font-mono text-[var(--text-muted)] uppercase tracking-widest">
             {filledCount} / 1,000 filled
           </span>
         </div>
-        <div className="h-1 flex-1 mx-6 rounded-full bg-white/5 overflow-hidden">
+        <div className="h-1 flex-1 mx-6 rounded-full bg-[var(--border-subtle)] overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-amber-600 to-amber-400 rounded-full transition-all duration-700"
             style={{ width: `${(filledCount / 1000) * 100}%` }}
           />
         </div>
-        <span className="text-xs font-mono text-white/20">
+        <span className="text-xs font-mono text-[var(--text-dim)]">
           {(1000 - filledCount)} remaining
         </span>
       </div>
 
-      <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-[repeat(12,minmax(0,1fr))] lg:grid-cols-[repeat(16,minmax(0,1fr))] xl:grid-cols-[repeat(20,minmax(0,1fr))] 2xl:grid-cols-[repeat(25,minmax(0,1fr))] gap-[2px] bg-black/40 p-1 rounded-xl border border-white/5 shadow-2xl">
+      <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-[repeat(12,minmax(0,1fr))] lg:grid-cols-[repeat(16,minmax(0,1fr))] xl:grid-cols-[repeat(20,minmax(0,1fr))] 2xl:grid-cols-[repeat(25,minmax(0,1fr))] gap-[2px] bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-subtle)] shadow-2xl transition-colors duration-300">
         {allSlots.map((slot) => (
           <Slot
             key={slot.id}
@@ -102,10 +102,10 @@ export default function Grid() {
       </div>
 
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-xl">
+        <div className="absolute inset-0 flex items-center justify-center bg-[var(--glass-bg)] backdrop-blur-sm rounded-xl transition-colors duration-300">
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/30">Loading Archive</span>
+            <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-sans">Loading Archive</span>
           </div>
         </div>
       )}

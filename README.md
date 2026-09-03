@@ -5,16 +5,16 @@ The definitive digital museum of iconic timepieces.
 ## Features
 
 - **The Gallery**: A grid of 1,000 slots representing the history of horology.
-- **Nomination System**: Phase 1 allows enthusiasts to suggest iconic watches for the archive.
-- **Phase 2 Preview**: A glimpse into the future curated selection process.
-- **Premium Design**: Dark mode aesthetic with amber accents and modern typography.
+- **Nomination System**: Allows enthusiasts to suggest iconic watches for the archive.
+- **Community Contributions**: Upload watch photos, edit detailed specifications, and vote for favorite models.
+- **Premium Design System**: Light and Dark mode luxury aesthetic with Playfair Display serif headings and amber accents.
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **Styling**: Tailwind CSS v4
 - **Database**: Supabase
-- **Typography**: Inter & Outfit (via Google Fonts)
+- **Typography**: Playfair Display (Serif) & Plus Jakarta Sans (Sans-Serif)
 
 ## Getting Started
 

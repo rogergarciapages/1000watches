@@ -36,9 +36,9 @@ function timeAgo(dateStr: string): string {
 
 function StatCard({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
   return (
-    <div className={`p-8 flex flex-col gap-4 bg-white/[0.015] border-r border-white/[0.06] last:border-r-0`}>
-      <span className="text-[10px] uppercase tracking-[0.2em] text-white/30">{label}</span>
-      <span className={`text-5xl font-light ${accent ? 'text-amber-500' : 'text-white'}`}>{value}</span>
+    <div className={`p-8 flex flex-col gap-4 bg-[var(--bg-card)] border-r border-[var(--border-subtle)] last:border-r-0`}>
+      <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-sans">{label}</span>
+      <span className={`text-5xl font-serif font-light ${accent ? 'text-amber-500' : 'text-[var(--text-primary)]'}`}>{value}</span>
     </div>
   )
 }
@@ -46,30 +46,30 @@ function StatCard({ label, value, accent }: { label: string; value: number; acce
 function SubmissionCard({ submission }: { submission: any }) {
   return (
     <div className="group cursor-pointer">
-      <div className="flex gap-6 items-center p-5 border border-white/[0.06] bg-white/[0.015]
-        transition-all duration-500 hover:bg-white/[0.04] hover:border-white/10">
-        <div className="w-28 aspect-square bg-white/[0.04] border border-white/[0.06] flex-shrink-0 overflow-hidden flex items-center justify-center">
+      <div className="flex gap-6 items-center p-5 border border-[var(--border-medium)] bg-[var(--bg-card)]
+        transition-all duration-300 hover:border-amber-500/40 shadow-sm">
+        <div className="w-28 aspect-square bg-[var(--bg-secondary)] border border-[var(--border-medium)] flex-shrink-0 overflow-hidden flex items-center justify-center">
           {submission.image_url ? (
             <img src={submission.image_url} alt={submission.brand} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-8 h-8 rounded-full border border-amber-500/20 flex items-center justify-center">
-              <div className="w-2 h-2 rounded-full bg-amber-500/40 group-hover:bg-amber-500 transition-colors" />
+            <div className="w-8 h-8 rounded-full border border-amber-500/30 flex items-center justify-center">
+              <div className="w-2 h-2 rounded-full bg-amber-500/60 group-hover:bg-amber-500 transition-colors" />
             </div>
           )}
         </div>
         <div className="flex-grow space-y-2 min-w-0">
           <div className="flex justify-between items-start gap-4">
-            <span className="text-[10px] uppercase tracking-widest text-amber-500/80 font-bold">Submission</span>
-            <span className="text-[10px] uppercase tracking-widest text-white/25 whitespace-nowrap flex-shrink-0">{timeAgo(submission.created_at)}</span>
+            <span className="text-[10px] uppercase tracking-widest text-amber-500 font-bold font-sans">Submission</span>
+            <span className="text-[10px] uppercase tracking-widest text-[var(--text-dim)] whitespace-nowrap flex-shrink-0 font-sans">{timeAgo(submission.created_at)}</span>
           </div>
-          <h3 className="text-base font-medium text-white/90 group-hover:text-amber-500 transition-colors leading-snug truncate">
+          <h3 className="text-base font-serif font-medium text-[var(--text-primary)] group-hover:text-amber-500 transition-colors leading-snug truncate">
             {submission.brand} {submission.model}
           </h3>
-          <p className="text-xs text-white/40 leading-relaxed line-clamp-2">
+          <p className="text-xs text-[var(--text-muted)] leading-relaxed line-clamp-2 font-sans">
             {submission.year}{submission.material ? ` · ${submission.material}` : ''}{submission.movement_type ? ` · ${submission.movement_type}` : ''}
           </p>
           {submission.votes > 0 && (
-            <span className="inline-flex items-center gap-1 text-[10px] text-amber-500/60">
+            <span className="inline-flex items-center gap-1 text-[10px] text-amber-500 font-sans">
               <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
               </svg>
@@ -85,25 +85,25 @@ function SubmissionCard({ submission }: { submission: any }) {
 function PhotoCard({ photo }: { photo: any }) {
   return (
     <div className="group cursor-pointer">
-      <div className="flex gap-6 items-center p-5 border border-white/[0.06] bg-white/[0.015]
-        transition-all duration-500 hover:bg-white/[0.04] hover:border-white/10">
-        <div className="w-28 aspect-square bg-white/[0.04] border border-white/[0.06] flex-shrink-0 overflow-hidden flex items-center justify-center">
+      <div className="flex gap-6 items-center p-5 border border-[var(--border-medium)] bg-[var(--bg-card)]
+        transition-all duration-300 hover:border-amber-500/40 shadow-sm">
+        <div className="w-28 aspect-square bg-[var(--bg-secondary)] border border-[var(--border-medium)] flex-shrink-0 overflow-hidden flex items-center justify-center">
           <img src={photo.image_url} alt="" className="w-full h-full object-cover" />
         </div>
         <div className="flex-grow space-y-2 min-w-0">
           <div className="flex justify-between items-start gap-4">
-            <span className="text-[10px] uppercase tracking-widest text-amber-500/80 font-bold">Photo Upload</span>
-            <span className="text-[10px] uppercase tracking-widest text-white/25 whitespace-nowrap flex-shrink-0">{timeAgo(photo.created_at)}</span>
+            <span className="text-[10px] uppercase tracking-widest text-amber-500 font-bold font-sans">Photo Upload</span>
+            <span className="text-[10px] uppercase tracking-widest text-[var(--text-dim)] whitespace-nowrap flex-shrink-0 font-sans">{timeAgo(photo.created_at)}</span>
           </div>
           {photo.caption && (
-            <h3 className="text-base font-medium text-white/90 group-hover:text-amber-500 transition-colors leading-snug line-clamp-2">
+            <h3 className="text-base font-serif font-medium text-[var(--text-primary)] group-hover:text-amber-500 transition-colors leading-snug line-clamp-2">
               {photo.caption}
             </h3>
           )}
           {photo.uploader_username && (
-            <p className="text-xs text-white/40">@{photo.uploader_username}</p>
+            <p className="text-xs text-[var(--text-muted)] font-sans">@{photo.uploader_username}</p>
           )}
-          <span className="inline-flex items-center gap-1 text-[10px] text-amber-500/60">
+          <span className="inline-flex items-center gap-1 text-[10px] text-amber-500 font-sans">
             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
             </svg>
@@ -118,13 +118,13 @@ function PhotoCard({ photo }: { photo: any }) {
 function VoteCard({ vote }: { vote: any }) {
   return (
     <div className="group cursor-pointer">
-      <div className="flex gap-6 items-center p-5 border border-white/[0.06] bg-white/[0.015]
-        transition-all duration-500 hover:bg-white/[0.04] hover:border-white/10">
-        <div className="w-28 aspect-square bg-white/[0.04] border border-white/[0.06] flex-shrink-0 overflow-hidden flex items-center justify-center">
+      <div className="flex gap-6 items-center p-5 border border-[var(--border-medium)] bg-[var(--bg-card)]
+        transition-all duration-300 hover:border-amber-500/40 shadow-sm">
+        <div className="w-28 aspect-square bg-[var(--bg-secondary)] border border-[var(--border-medium)] flex-shrink-0 overflow-hidden flex items-center justify-center">
           {vote.photo?.image_url ? (
             <img src={vote.photo.image_url} alt="" className="w-full h-full object-cover" />
           ) : (
-            <svg className="w-8 h-8 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-[var(--text-dim)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -132,16 +132,16 @@ function VoteCard({ vote }: { vote: any }) {
         </div>
         <div className="flex-grow space-y-2 min-w-0">
           <div className="flex justify-between items-start gap-4">
-            <span className="text-[10px] uppercase tracking-widest text-amber-500/80 font-bold">Vote Cast</span>
-            <span className="text-[10px] uppercase tracking-widest text-white/25 whitespace-nowrap flex-shrink-0">{timeAgo(vote.created_at)}</span>
+            <span className="text-[10px] uppercase tracking-widest text-amber-500 font-bold font-sans">Vote Cast</span>
+            <span className="text-[10px] uppercase tracking-widest text-[var(--text-dim)] whitespace-nowrap flex-shrink-0 font-sans">{timeAgo(vote.created_at)}</span>
           </div>
           {vote.photo?.caption && (
-            <h3 className="text-base font-medium text-white/90 group-hover:text-amber-500 transition-colors leading-snug line-clamp-2">
+            <h3 className="text-base font-serif font-medium text-[var(--text-primary)] group-hover:text-amber-500 transition-colors leading-snug line-clamp-2">
               {vote.photo.caption}
             </h3>
           )}
           {vote.photo && (
-            <p className="text-xs text-white/40">
+            <p className="text-xs text-[var(--text-muted)] font-sans">
               {vote.photo.uploader_username ? `@${vote.photo.uploader_username}'s photo` : 'Community photo'}
             </p>
           )}
@@ -169,14 +169,14 @@ function EmptyState({ tab, name }: { tab: Tab; name: string }) {
   const msg = messages[tab]
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-      <div className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center">
-        <svg className="w-6 h-6 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="w-16 h-16 rounded-full border border-[var(--border-medium)] flex items-center justify-center">
+        <svg className="w-6 h-6 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
         </svg>
       </div>
       <div>
-        <p className="text-white/50 text-sm">{msg.title}</p>
-        <p className="text-white/25 text-xs mt-1">{msg.desc}</p>
+        <p className="text-[var(--text-secondary)] text-sm font-sans">{msg.title}</p>
+        <p className="text-[var(--text-muted)] text-xs mt-1 font-sans">{msg.desc}</p>
       </div>
     </div>
   )
@@ -315,7 +315,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
       </div>
     )
@@ -323,14 +323,14 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#050505] text-white selection:bg-amber-500/20">
+      <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] selection:bg-amber-500/20 transition-colors duration-300">
         <Navbar />
         <main className="pt-36 pb-32 px-6 md:px-12 max-w-lg mx-auto text-center">
-          <h1 className="text-4xl font-light tracking-tight mb-6">Welcome Back</h1>
-          <p className="text-white/40 mb-10">Sign in to track your nominations, votes, and contributions to the archive.</p>
+          <h1 className="text-4xl md:text-5xl font-serif font-light tracking-tight mb-6 text-[var(--text-primary)]">Welcome Back</h1>
+          <p className="text-[var(--text-muted)] mb-10 font-sans text-sm">Sign in to track your nominations, votes, and contributions to the archive.</p>
           <button
             onClick={handleSignIn}
-            className="w-full py-4 rounded-xl bg-white text-black font-bold text-sm uppercase tracking-[0.2em] hover:bg-amber-500 transition-all flex items-center justify-center gap-3"
+            className="w-full py-4 rounded-xl bg-amber-600 text-black font-bold text-sm uppercase tracking-[0.2em] hover:bg-amber-500 transition-all flex items-center justify-center gap-3 shadow-lg shadow-amber-600/10"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -368,18 +368,18 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-amber-500/20">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] selection:bg-amber-500/20 transition-colors duration-300">
       <Navbar />
 
       <main className="pt-36 pb-32 px-6 md:px-12 max-w-7xl mx-auto">
         <header className="grid grid-cols-1 md:grid-cols-12 gap-10 items-end mb-24">
           <div className="md:col-span-4 relative group">
-            <div className="aspect-square bg-white/[0.03] border border-white/[0.06] overflow-hidden flex items-center justify-center relative">
+            <div className="aspect-square bg-[var(--bg-card)] border border-[var(--border-medium)] overflow-hidden flex items-center justify-center relative shadow-lg">
               {profileImage ? (
                 <img src={profileImage} alt={name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-24 h-24 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center">
-                  <span className="text-3xl font-light text-white/30">{name.charAt(0)}</span>
+                <div className="w-24 h-24 rounded-full bg-[var(--bg-secondary)] border border-[var(--border-medium)] flex items-center justify-center">
+                  <span className="text-3xl font-serif text-[var(--text-muted)]">{name.charAt(0)}</span>
                 </div>
               )}
 
@@ -396,7 +396,7 @@ export default function ProfilePage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.76-.9l.814-1.05A2 2 0 0111.07 3H13a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <span className="text-[10px] uppercase tracking-wider text-white">Change Photo</span>
+                    <span className="text-[10px] uppercase tracking-wider text-white font-sans">Change Photo</span>
                   </div>
                 )}
               </button>
@@ -408,32 +408,32 @@ export default function ProfilePage() {
                 className="hidden"
               />
             </div>
-            <div className="absolute -bottom-4 -right-4 bg-amber-500/10 border border-amber-500/20 px-5 py-3 hidden md:block">
-              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-amber-500">Google Member</span>
+            <div className="absolute -bottom-4 -right-4 bg-amber-500/10 border border-amber-500/30 px-5 py-3 hidden md:block backdrop-blur-sm">
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-amber-500 font-sans">Google Member</span>
             </div>
           </div>
 
           <div className="md:col-span-8 flex flex-col gap-6">
             <div className="flex flex-col gap-2">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-semibold">Curator</span>
-              <h1 className="text-6xl md:text-8xl tracking-tighter leading-none font-light text-white">{name}</h1>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)] font-semibold font-sans">Curator</span>
+              <h1 className="text-6xl md:text-8xl tracking-tight leading-none font-serif font-light text-[var(--text-primary)]">{name}</h1>
             </div>
             <div className="flex flex-wrap gap-x-12 gap-y-4">
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-white/25">Member Since</span>
-                <span className="text-lg font-medium tracking-tight text-white/80">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-dim)] font-sans">Member Since</span>
+                <span className="text-lg font-medium tracking-tight text-[var(--text-secondary)] font-sans">
                   {new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                 </span>
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-white/25">Email</span>
-                <span className="text-lg font-medium tracking-tight text-white/80">{user.email}</span>
+                <span className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-dim)] font-sans">Email</span>
+                <span className="text-lg font-medium tracking-tight text-[var(--text-secondary)] font-sans">{user.email}</span>
               </div>
             </div>
           </div>
         </header>
 
-        <section className="grid grid-cols-2 md:grid-cols-4 mb-28 border border-white/[0.06]">
+        <section className="grid grid-cols-2 md:grid-cols-4 mb-28 border border-[var(--border-medium)]">
           <StatCard label="Submissions" value={counts.submissions} accent />
           <StatCard label="Photos" value={counts.photos} />
           <StatCard label="Votes Cast" value={counts.votes} />
@@ -444,12 +444,12 @@ export default function ProfilePage() {
           <div className="lg:col-span-8 space-y-28">
             <section>
               <div className="flex items-baseline justify-between mb-10">
-                <h2 className="text-3xl font-light tracking-tight">Recent Activity</h2>
-                <div className="flex gap-6 border-b border-white/[0.07] pb-2">
+                <h2 className="text-3xl font-serif font-light tracking-tight text-[var(--text-primary)]">Recent Activity</h2>
+                <div className="flex gap-6 border-b border-[var(--border-subtle)] pb-2">
                   {TABS.map(tab => (
                     <button key={tab} onClick={() => setActiveTab(tab)}
-                      className={`text-[10px] uppercase tracking-widest font-bold pb-2 -mb-[10px] transition-colors
-                        ${activeTab === tab ? 'border-b-2 border-amber-500 text-amber-500' : 'text-white/30 hover:text-white/60'}`}>
+                      className={`text-[10px] uppercase tracking-widest font-bold pb-2 -mb-[10px] transition-colors font-sans
+                        ${activeTab === tab ? 'border-b-2 border-amber-500 text-amber-500' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>
                       {tab}
                     </button>
                   ))}
@@ -466,20 +466,20 @@ export default function ProfilePage() {
 
             <section>
               <div className="flex items-center gap-6 mb-10">
-                <h2 className="text-3xl font-light tracking-tight whitespace-nowrap">Cabinet of Curiosities</h2>
-                <div className="h-px bg-white/[0.07] w-full" />
+                <h2 className="text-3xl font-serif font-light tracking-tight whitespace-nowrap text-[var(--text-primary)]">Cabinet of Curiosities</h2>
+                <div className="h-px bg-[var(--border-subtle)] w-full" />
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
                 {BADGES.map(({ icon, label, desc, amber }) => (
                   <div key={label} className="flex flex-col items-center text-center gap-4 group">
-                    <div className={`w-20 h-20 rounded-full p-[3px] transition-transform duration-500 group-hover:rotate-12 border ${amber ? 'border-amber-500/30' : 'border-white/10'}`}>
-                      <div className={`w-full h-full rounded-full flex items-center justify-center text-2xl transition-colors bg-white/[0.03] ${amber ? 'group-hover:bg-amber-500/10 text-amber-500/60 group-hover:text-amber-500' : 'group-hover:bg-white/[0.08] text-white/30 group-hover:text-white'}`}>
+                    <div className={`w-20 h-20 rounded-full p-[3px] transition-transform duration-500 group-hover:rotate-12 border ${amber ? 'border-amber-500/40' : 'border-[var(--border-medium)]'}`}>
+                      <div className={`w-full h-full rounded-full flex items-center justify-center text-2xl transition-colors bg-[var(--bg-card)] ${amber ? 'group-hover:bg-amber-500/10 text-amber-500' : 'group-hover:bg-[var(--bg-secondary)] text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'}`}>
                         {icon}
                       </div>
                     </div>
-                    <div className="space-y-1">
-                      <span className="block text-[10px] uppercase tracking-widest font-bold text-white/70">{label}</span>
-                      <span className="block text-[10px] text-white/25 italic">{desc}</span>
+                    <div className="space-y-1 font-sans">
+                      <span className="block text-[10px] uppercase tracking-widest font-bold text-[var(--text-secondary)]">{label}</span>
+                      <span className="block text-[10px] text-[var(--text-muted)] italic">{desc}</span>
                     </div>
                   </div>
                 ))}
@@ -488,100 +488,100 @@ export default function ProfilePage() {
           </div>
 
           <aside className="lg:col-span-4 space-y-8">
-            <div className="border border-white/[0.06] bg-white/[0.015] p-8 space-y-8">
+            <div className="border border-[var(--border-medium)] bg-[var(--bg-card)] p-8 space-y-8 shadow-sm">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-light tracking-tight">Curator Settings</h2>
+                <h2 className="text-2xl font-serif font-light tracking-tight text-[var(--text-primary)]">Curator Settings</h2>
                 <button
                   onClick={handleSignOut}
-                  className="text-[10px] uppercase tracking-widest text-white/30 hover:text-red-400 transition-colors"
+                  className="text-[10px] uppercase tracking-widest text-[var(--text-muted)] hover:text-red-500 transition-colors font-sans"
                 >
                   Sign Out
                 </button>
               </div>
               <div className="space-y-6">
                 {SETTINGS_LINKS.map((label, index) => (
-                  <div key={label} className="flex flex-col gap-3 group cursor-pointer">
+                  <div key={label} className="flex flex-col gap-3 group cursor-pointer font-sans">
                     <button
                       onClick={() => index === 0 && setShowSettings(true)}
                       className="flex justify-between items-center group-hover:text-amber-500 transition-colors w-full text-left"
                     >
-                      <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/60 group-hover:text-amber-500 transition-colors">
+                      <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[var(--text-muted)] group-hover:text-amber-500 transition-colors">
                         {label}
                       </span>
-                      <svg className="w-3 h-3 text-white/30 group-hover:text-amber-500 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <svg className="w-3 h-3 text-[var(--text-dim)] group-hover:text-amber-500 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M5 12h14M12 5l7 7-7 7"/>
                       </svg>
                     </button>
-                    <div className="h-px bg-white/[0.06]" />
+                    <div className="h-px bg-[var(--border-subtle)]" />
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="border border-amber-500/10 bg-amber-500/[0.03] p-8 space-y-4">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-amber-500/70 font-bold">Archive Contribution</span>
+            <div className="border border-amber-500/20 bg-amber-500/[0.04] p-8 space-y-4">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-amber-500 font-bold font-sans">Archive Contribution</span>
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-light text-amber-500">{counts.submissions}</span>
-                <span className="text-xs text-white/30 mb-1 uppercase tracking-widest">nominations</span>
+                <span className="text-4xl font-serif font-light text-amber-500">{counts.submissions}</span>
+                <span className="text-xs text-[var(--text-muted)] mb-1 uppercase tracking-widest font-sans">nominations</span>
               </div>
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-light text-amber-500">{counts.photos}</span>
-                <span className="text-xs text-white/30 mb-1 uppercase tracking-widest">photos</span>
+                <span className="text-4xl font-serif font-light text-amber-500">{counts.photos}</span>
+                <span className="text-xs text-[var(--text-muted)] mb-1 uppercase tracking-widest font-sans">photos</span>
               </div>
             </div>
           </aside>
         </div>
       </main>
 
-      <footer className="bg-[#080808] border-t border-white/[0.05] flex flex-col md:flex-row justify-between items-center px-12 py-14 gap-8">
-        <div className="text-sm font-light tracking-[0.15em] uppercase text-white/60">
-          1,000 <span className="text-amber-500">Watches</span>
+      <footer className="bg-[var(--bg-secondary)] border-t border-[var(--border-subtle)] flex flex-col md:flex-row justify-between items-center px-12 py-14 gap-8">
+        <div className="text-sm font-light tracking-[0.15em] uppercase text-[var(--text-primary)]">
+          1,000 <span className="text-amber-500 font-serif lowercase italic">Watches</span>
         </div>
-        <div className="text-[10px] tracking-widest uppercase text-white/20">
+        <div className="text-[10px] tracking-widest uppercase text-[var(--text-dim)] font-sans">
           &copy; {new Date().getFullYear()} 1,000 Watches. The Curated Chronology.
         </div>
       </footer>
 
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-md p-7 rounded-2xl border border-white/10 bg-[#0d0d0d] shadow-2xl">
-            <h3 className="text-lg font-medium text-white mb-1">Profile Identity</h3>
-            <p className="text-xs text-white/30 mb-6">Update your curator profile details.</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md p-7 rounded-2xl border border-[var(--border-medium)] bg-[var(--bg-elevated)] shadow-2xl">
+            <h3 className="text-xl font-serif font-light text-[var(--text-primary)] mb-1">Profile Identity</h3>
+            <p className="text-xs text-[var(--text-muted)] mb-6 font-sans">Update your curator profile details.</p>
 
-            <div className="space-y-4">
+            <div className="space-y-4 font-sans">
               <div>
-                <label className="block text-[10px] uppercase tracking-widest text-white/30 mb-1.5">Display Name</label>
+                <label className="block text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1.5">Display Name</label>
                 <input
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-amber-500/50"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-medium)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-primary)] focus:outline-none focus:border-amber-500/50"
                   placeholder="Your display name"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] uppercase tracking-widest text-white/30 mb-1.5">Email</label>
+                <label className="block text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1.5">Email</label>
                 <input
                   type="text"
                   value={user?.email || ''}
                   disabled
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white/40"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border-medium)] rounded-lg px-3 py-2.5 text-sm text-[var(--text-muted)]"
                 />
-                <p className="text-[10px] text-white/20 mt-1">Email cannot be changed</p>
+                <p className="text-[10px] text-[var(--text-dim)] mt-1">Email cannot be changed</p>
               </div>
             </div>
 
-            <div className="flex gap-3 pt-6">
+            <div className="flex gap-3 pt-6 font-sans">
               <button
                 onClick={handleSaveSettings}
-                className="flex-1 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs uppercase tracking-wider transition-all"
+                className="flex-1 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-black font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-amber-600/10"
               >
                 Save Changes
               </button>
               <button
                 onClick={() => setShowSettings(false)}
-                className="flex-1 py-2.5 rounded-lg border border-white/10 text-white/40 hover:text-white text-xs uppercase tracking-wider transition-all"
+                className="flex-1 py-2.5 rounded-lg border border-[var(--border-medium)] text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xs uppercase tracking-wider transition-all"
               >
                 Cancel
               </button>

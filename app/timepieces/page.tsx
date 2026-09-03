@@ -21,31 +21,31 @@ export default async function BrandsPage() {
   const brands = [...new Set(watches?.map(w => w.brand) || [])].sort();
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-amber-500/30">
+    <main className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] selection:bg-amber-500/30 transition-colors duration-300">
       <Navbar />
       
       <div className="pt-32 pb-20 px-6">
         <div className="max-w-4xl mx-auto">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-xs text-white/30 mb-8">
+          <nav className="flex items-center gap-2 text-xs text-[var(--text-muted)] mb-8 font-sans">
             <a href="/" className="hover:text-amber-500 transition-colors">Home</a>
             <span>/</span>
-            <span className="text-white/50">All Brands</span>
+            <span className="text-[var(--text-secondary)]">All Brands</span>
           </nav>
 
           <div className="mb-12">
-            <p className="text-[10px] uppercase tracking-widest text-amber-500 mb-3">The Collection</p>
-            <h1 className="text-4xl md:text-5xl font-display font-light tracking-tight">
+            <p className="text-[10px] uppercase tracking-widest text-amber-500 mb-3 font-sans">The Collection</p>
+            <h1 className="text-4xl md:text-5xl font-serif font-light tracking-tight text-[var(--text-primary)]">
               Watch Brands
             </h1>
-            <p className="text-white/40 mt-3 max-w-lg">
+            <p className="text-[var(--text-muted)] mt-3 max-w-lg font-sans text-sm">
               Explore {brands.length} brands featured in our curated archive of the world's most iconic timepieces.
             </p>
           </div>
 
           {brands.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-white/30">No watches in the archive yet.</p>
+            <div className="text-center py-20 font-sans">
+              <p className="text-[var(--text-muted)] font-sans">No watches in the archive yet.</p>
               <a href="/#nominate" className="text-amber-500 text-sm mt-4 inline-block hover:underline">
                 Nominate a watch →
               </a>
@@ -60,12 +60,12 @@ export default async function BrandsPage() {
                   <Link
                     key={brand}
                     href={`/timepieces/${slug}`}
-                    className="group p-6 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-amber-500/30 transition-all"
+                    className="group p-6 rounded-xl border border-[var(--border-medium)] bg-[var(--bg-card)] hover:border-amber-500/40 transition-all duration-300 shadow-sm"
                   >
-                    <h2 className="text-lg font-display font-light text-white group-hover:text-amber-400 transition-colors">
+                    <h2 className="text-xl font-serif font-light text-[var(--text-primary)] group-hover:text-amber-500 transition-colors">
                       {brand}
                     </h2>
-                    <p className="text-[10px] text-white/30 mt-2 uppercase tracking-wider">
+                    <p className="text-[10px] text-[var(--text-muted)] mt-2 uppercase tracking-wider font-sans">
                       {count} {count === 1 ? 'model' : 'models'}
                     </p>
                   </Link>
