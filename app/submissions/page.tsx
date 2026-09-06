@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
 import VoteButton from '@/components/VoteButton'
 import Navbar from '@/components/Navbar'
+import { buildWatchSlug } from '@/utils/slug'
 
 export default function SubmissionsPage() {
   const [submissions, setSubmissions] = useState<any[]>([])
@@ -63,46 +64,67 @@ export default function SubmissionsPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {submissions.map((sub, index) => (
-                <div 
-                  key={sub.id}
-                  className="group relative rounded-xl overflow-hidden border border-[var(--border-medium)] bg-[var(--bg-card)] hover:border-amber-500/40 transition-all duration-300 shadow-sm hover:shadow-md"
-                >
-                  {/* Rank badge */}
-                  <div className="absolute top-3 left-3 z-10 px-2 py-1 rounded-md bg-amber-500/20 backdrop-blur-sm border border-amber-500/40 text-[10px] font-bold text-amber-500">
-                    #{index + 1}
-                  </div>
+              {submissions.map((sub, index) => {
+                const slug = sub.slug || buildWatchSlug({
+                  year: sub.year,
+                  brand: sub.brand,
+                  line: sub.line,
+                  model: sub.model,
+                  nickname: sub.nickname,
+                  modelNumber: sub.model_number,
+                });
 
-                  {/* Image */}
-                  <div className="aspect-square bg-[var(--bg-secondary)]">
-                    {sub.image_url ? (
-                      <img src={sub.image_url} alt={sub.model} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="w-16 h-16 rounded-full border border-[var(--border-medium)] flex items-center justify-center">
-                          <span className="text-2xl text-[var(--text-muted)] font-serif">{sub.brand?.[0]}</span>
+                return (
+                  <div 
+                    key={sub.id}
+                    className="group relative rounded-xl overflow-hidden border border-[var(--border-medium)] bg-[var(--bg-card)] hover:border-amber-500/40 transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between"
+                  >
+                    {/* Rank badge */}
+                    <div className="absolute top-3 left-3 z-10 px-2 py-1 rounded-md bg-amber-500/20 backdrop-blur-sm border border-amber-500/40 text-[10px] font-bold text-amber-500">
+                      #{index + 1}
+                    </div>
+
+                    {/* Image */}
+                    <Link href={`/timepieces/${slug}`} className="block aspect-square bg-[var(--bg-secondary)] overflow-hidden">
+                      {sub.image_url ? (
+                        <img src={sub.image_url} alt={sub.model} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div className="w-16 h-16 rounded-full border border-[var(--border-medium)] flex items-center justify-center">
+                            <span className="text-2xl text-[var(--text-muted)] font-serif">{sub.brand?.[0]}</span>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </Link>
 
-                  {/* Info */}
-                  <div className="p-4">
-                    <h3 className="text-sm font-medium text-[var(--text-primary)] truncate font-sans">{sub.brand}</h3>
-                    <p className="text-xs text-[var(--text-muted)] truncate font-serif italic">{sub.model}</p>
-                    
-                    <div className="flex items-center justify-between mt-4">
-                      <VoteButton
-                        submissionId={sub.uuid}
-                        initialVotes={sub.votes || 0}
-                        size="sm"
-                        table="submissions"
-                      />
-                      <span className="text-[10px] text-[var(--text-dim)] font-mono">{sub.year}</span>
+                    {/* Info */}
+                    <div className="p-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-amber-500 font-sans">
+                          <span>{sub.brand}</span>
+                          {sub.line && <span>• {sub.line}</span>}
+                        </div>
+                        <Link href={`/timepieces/${slug}`} className="block group-hover:text-amber-500 transition-colors">
+                          <h3 className="text-sm font-medium text-[var(--text-primary)] truncate font-sans">{sub.model}</h3>
+                        </Link>
+                        {sub.nickname && (
+                          <p className="text-xs text-amber-400/90 truncate font-serif italic">"{sub.nickname}"</p>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-[var(--border-subtle)]">
+                        <VoteButton
+                          submissionId={sub.id}
+                          initialVotes={sub.votes || 0}
+                          size="sm"
+                          table="submissions"
+                        />
+                        <span className="text-[10px] text-[var(--text-dim)] font-mono">{sub.year}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

@@ -23,27 +23,36 @@ function SlotTooltip({ brand, model, year }: SlotTooltipProps) {
   );
 }
 
-function createSlug(brand: string, model: string): string {
-  const slugBrand = brand.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const slugModel = model.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  return `${slugBrand}/${slugModel}`;
-}
+import { buildWatchSlug } from '@/utils/slug';
 
 interface SlotProps {
   id: number;
   brand?: string | null;
   model?: string | null;
   year?: number | null;
+  line?: string | null;
+  nickname?: string | null;
+  model_number?: string | null;
+  slug?: string | null;
   status: 'empty' | 'filled';
   featuredImage?: string;
 }
 
-export default function Slot({ id, brand, model, year, status, featuredImage }: SlotProps) {
+export default function Slot({ id, brand, model, year, line, nickname, model_number, slug, status, featuredImage }: SlotProps) {
   const [hovered, setHovered] = useState(false);
   const isEmpty = status === 'empty';
 
-  const watchLink = !isEmpty && brand && model 
-    ? `/timepieces/${createSlug(brand, model)}` 
+  const computedSlug = slug || (brand && model ? buildWatchSlug({
+    year,
+    brand,
+    line,
+    model,
+    nickname,
+    modelNumber: model_number
+  }) : null);
+
+  const watchLink = !isEmpty && computedSlug 
+    ? `/timepieces/${computedSlug}` 
     : null;
 
   const content = (

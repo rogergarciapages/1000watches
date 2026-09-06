@@ -43,7 +43,7 @@ export default function Navbar() {
         </Link>
 
         {/* Nav Links */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-6">
           <Link 
             href="/#archive"
             className="text-[11px] uppercase tracking-widest text-[var(--text-muted)] hover:text-amber-500 transition-colors"
@@ -51,10 +51,28 @@ export default function Navbar() {
             Archive
           </Link>
           <Link 
-            href="/timepieces"
+            href="/brands"
             className="text-[11px] uppercase tracking-widest text-[var(--text-muted)] hover:text-amber-500 transition-colors"
           >
             Brands
+          </Link>
+          <Link 
+            href="/years"
+            className="text-[11px] uppercase tracking-widest text-[var(--text-muted)] hover:text-amber-500 transition-colors"
+          >
+            Years
+          </Link>
+          <Link 
+            href="/lines"
+            className="text-[11px] uppercase tracking-widest text-[var(--text-muted)] hover:text-amber-500 transition-colors"
+          >
+            Collections
+          </Link>
+          <Link 
+            href="/nicknames"
+            className="text-[11px] uppercase tracking-widest text-[var(--text-muted)] hover:text-amber-500 transition-colors"
+          >
+            Nicknames
           </Link>
           <Link 
             href="/submissions"

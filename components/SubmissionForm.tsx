@@ -5,6 +5,8 @@ import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
 
+import { buildWatchSlug } from '@/utils/slug';
+
 const FIELD_CLASS = `
   w-full bg-[var(--bg-primary)] border border-[var(--border-medium)] rounded-lg px-4 py-3 text-sm text-[var(--text-primary)]
   placeholder:text-[var(--text-dim)] focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/40
@@ -21,14 +23,26 @@ const LABEL_CLASS = "block text-[10px] uppercase tracking-widest text-[var(--tex
 
 type FormData = {
   brand: string;
+  line: string;
   model: string;
+  nickname: string;
+  model_number: string;
   year: string;
   material: string;
   movement_type: string;
 };
 
 export default function SubmissionForm() {
-  const [form, setForm] = useState<FormData>({ brand: '', model: '', year: '', material: '', movement_type: '' });
+  const [form, setForm] = useState<FormData>({
+    brand: '',
+    line: '',
+    model: '',
+    nickname: '',
+    model_number: '',
+    year: '',
+    material: '',
+    movement_type: ''
+  });
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -36,6 +50,15 @@ export default function SubmissionForm() {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const currentSlug = buildWatchSlug({
+    year: form.year,
+    brand: form.brand,
+    line: form.line,
+    model: form.model,
+    nickname: form.nickname,
+    modelNumber: form.model_number,
+  });
 
   const handleChange = (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm(prev => ({ ...prev, [field]: e.target.value }));
@@ -115,10 +138,23 @@ export default function SubmissionForm() {
         setUploading(false);
       }
 
+      const slug = buildWatchSlug({
+        year,
+        brand: form.brand.trim(),
+        line: form.line.trim() || null,
+        model: form.model.trim(),
+        nickname: form.nickname.trim() || null,
+        modelNumber: form.model_number.trim() || null,
+      });
+
       const { error } = await supabase.from('submissions').insert([
         {
           brand: form.brand.trim(),
+          line: form.line.trim() || null,
           model: form.model.trim(),
+          nickname: form.nickname.trim() || null,
+          model_number: form.model_number.trim() || null,
+          slug,
           year,
           material: form.material.trim() || null,
           movement_type: form.movement_type || null,
@@ -132,7 +168,16 @@ export default function SubmissionForm() {
       }
 
       setStatus('success');
-      setForm({ brand: '', model: '', year: '', material: '', movement_type: '' });
+      setForm({
+        brand: '',
+        line: '',
+        model: '',
+        nickname: '',
+        model_number: '',
+        year: '',
+        material: '',
+        movement_type: ''
+      });
       removeImage();
       setTimeout(() => setStatus('idle'), 6000);
     } catch (err: any) {
@@ -150,17 +195,17 @@ export default function SubmissionForm() {
       {/* Header */}
       <div className="mb-7">
         <h3 className="text-2xl font-serif font-light text-[var(--text-primary)] tracking-tight">Nominate a Piece</h3>
-        <p className="text-xs text-[var(--text-muted)] mt-1 font-sans">No account required. Submissions are reviewed by our curators.</p>
+        <p className="text-xs text-[var(--text-muted)] mt-1 font-sans">No account required. Every detail helps build the definitive horological index.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Brand */}
         <div>
-          <label className={LABEL_CLASS}>Manufacturer / Brand</label>
+          <label className={LABEL_CLASS}>Manufacturer / Brand *</label>
           <input
             id="submission-brand"
             required
-            placeholder="e.g. Patek Philippe"
+            placeholder="e.g. Citizen, Rolex, Omega"
             className={FIELD_CLASS}
             value={form.brand}
             onChange={handleChange('brand')}
@@ -168,31 +213,78 @@ export default function SubmissionForm() {
           />
         </div>
 
-        {/* Model */}
-        <div>
-          <label className={LABEL_CLASS}>Reference / Model Name</label>
-          <input
-            id="submission-model"
-            required
-            placeholder="e.g. Nautilus 5711"
-            className={FIELD_CLASS}
-            value={form.model}
-            onChange={handleChange('model')}
-            autoComplete="off"
-          />
+        {/* Line & Model Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={LABEL_CLASS}>Line / Collection (Optional)</label>
+            <input
+              id="submission-line"
+              placeholder="e.g. Promaster, Seamaster"
+              className={FIELD_CLASS}
+              value={form.line}
+              onChange={handleChange('line')}
+              autoComplete="off"
+            />
+          </div>
+          <div>
+            <label className={LABEL_CLASS}>Model Name *</label>
+            <input
+              id="submission-model"
+              required
+              placeholder="e.g. Dive, Professional, Chrono"
+              className={FIELD_CLASS}
+              value={form.model}
+              onChange={handleChange('model')}
+              autoComplete="off"
+            />
+          </div>
         </div>
+
+        {/* Nickname & Model/Reference Number Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className={LABEL_CLASS}>Iconic Nickname (Optional)</label>
+            <input
+              id="submission-nickname"
+              placeholder="e.g. Fugu, Batman, Hulk, Panda"
+              className={FIELD_CLASS}
+              value={form.nickname}
+              onChange={handleChange('nickname')}
+              autoComplete="off"
+            />
+          </div>
+          <div>
+            <label className={LABEL_CLASS}>Model / Reference # (Optional)</label>
+            <input
+              id="submission-model-number"
+              placeholder="e.g. NY0136-52L, 116610LN"
+              className={FIELD_CLASS}
+              value={form.model_number}
+              onChange={handleChange('model_number')}
+              autoComplete="off"
+            />
+          </div>
+        </div>
+
+        {/* Live SEO Slug Preview */}
+        {currentSlug && (
+          <div className="px-3 py-2 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-subtle)] text-[11px] font-mono text-[var(--text-dim)] flex items-center gap-2 overflow-hidden">
+            <span className="text-amber-500 font-bold uppercase text-[9px] font-sans tracking-wider flex-shrink-0">SEO URL:</span>
+            <span className="truncate text-[var(--text-secondary)]">/timepieces/{currentSlug}</span>
+          </div>
+        )}
 
         {/* Year & Material Row */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={LABEL_CLASS}>Original Release Year</label>
+            <label className={LABEL_CLASS}>Original Release Year *</label>
             <input
               id="submission-year"
               required
               type="number"
               min="1800"
               max={new Date().getFullYear()}
-              placeholder="e.g. 1976"
+              placeholder="e.g. 1998"
               className={FIELD_CLASS}
               value={form.year}
               onChange={handleChange('year')}

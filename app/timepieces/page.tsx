@@ -59,7 +59,7 @@ export default async function BrandsPage() {
                 return (
                   <Link
                     key={brand}
-                    href={`/timepieces/${slug}`}
+                    href={`/brands/${slug}`}
                     className="group p-6 rounded-xl border border-[var(--border-medium)] bg-[var(--bg-card)] hover:border-amber-500/40 transition-all duration-300 shadow-sm"
                   >
                     <h2 className="text-xl font-serif font-light text-[var(--text-primary)] group-hover:text-amber-500 transition-colors">

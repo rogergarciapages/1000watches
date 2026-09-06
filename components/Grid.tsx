@@ -95,6 +95,10 @@ export default function Grid() {
             brand={slot.brand}
             model={slot.model}
             year={slot.year}
+            line={slot.line}
+            nickname={slot.nickname}
+            model_number={slot.model_number || slot.reference}
+            slug={slot.slug}
             status={slot.status}
             featuredImage={slot.featuredImage ?? undefined}
           />
